@@ -47,7 +47,7 @@ services:
       SmtpEmail__Port: ${SMTP_PORT:-587}
       SmtpEmail__UseSsl: ${SMTP_USE_SSL:-true}
       SmtpEmail__Username: ${SMTP_USERNAME:-arslanbekovr7@gmail.com}
-      SmtpEmail__Password: ${SMTP_PASSWORD:-beey byfa rmnc assl}
+      SmtpEmail__Password: ${SMTP_PASSWORD:-lyrspwhiysesigse}
       SmtpEmail__FromEmail: ${SMTP_FROM_EMAIL:-arslanbekovr7@gmail.com}
       SmtpEmail__FromName: ${SMTP_FROM_NAME:-komSync}
       SmtpEmail__TimeoutSeconds: ${SMTP_TIMEOUT_SECONDS:-20}
