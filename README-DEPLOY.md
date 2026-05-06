@@ -54,10 +54,12 @@ npm run preview
 
 ## Docker Compose (backend + db)
 
-В директории `KomSync/WebApi` лежит `docker-compose.yml`, который поднимает:
+В директории `KomSync/WebApi`:
 
-- `backend` (ASP.NET Core WebApi)
-- `db` (PostgreSQL 16)
+- **`docker-compose.yml`** — **деплой на Linux**: контейнер `backend` с `network_mode: host` (исходящий трафик и SMTP как у хоста). Строка подключения к БД: `Host=127.0.0.1`, порт совпадает с проброшенным `POSTGRES_PORT` сервиса `db`. Kestrel слушает `BACKEND_PORT` на хосте (`ASPNETCORE_URLS=http://+:${BACKEND_PORT}`). Секция `ports` у backend не используется.
+- **`docker-compose.local.yml`** — **локальный Docker** (Docker Desktop и т.п.): обычная bridge-сеть, `Host=db`, проброс `${BACKEND_PORT}:8080`, как раньше.
+
+Разработка **без** Docker API: `dotnet run` и Postgres на машине — по-прежнему без изменений.
 
 ### Переменные окружения
 
@@ -71,24 +73,31 @@ cp .env.example .env
 Основные переменные (для backend):
 
 - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_PORT`
-- `BACKEND_PORT`
+- `BACKEND_PORT` (на деплое — порт API на хосте; в `docker-compose.local.yml` — проброс хоста на контейнер 8080)
 - `ASPNETCORE_ENVIRONMENT`
 - `JWT_SECRET`
 - `PASSWORD_RESET_FRONTEND_BASE_URL`, `PASSWORD_RESET_TOKEN_LIFETIME_HOURS`
 - `DEADLINE_REMINDERS_ENABLED`, `DEADLINE_REMINDERS_INTERVAL_HOURS`, `DEADLINE_REMINDERS_OFFSET_0..3`
 - `SMTP_ENABLED`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USE_SSL`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME`
 - `SEED_ADMIN_ENABLED`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_FULLNAME`, `SEED_ADMIN_DEPARTMENT`, `SEED_ADMIN_POSITION`
-### Запуск
+
+### Запуск (деплой Linux)
 
 ```bash
 cd KomSync/WebApi
 docker compose up -d --build
 ```
 
-После старта:
+После старта на сервере API доступен на `http://<хост>:${BACKEND_PORT}` (например `5237`). PostgreSQL на хосте: `127.0.0.1:${POSTGRES_PORT}`.
 
-- Backend: `http://localhost:5237`
-- Swagger (в Development): `http://localhost:5237/`
-- PostgreSQL: `localhost:5432`
+### Запуск (локально в Docker)
 
-Фронтенд поднимается отдельно из репозитория `KomSync_Ui` своим `docker-compose.yml`.
+```bash
+cd KomSync/WebApi
+docker compose -f docker-compose.local.yml up -d --build
+```
+
+- Backend: `http://localhost:${BACKEND_PORT}`
+- PostgreSQL: `localhost:${POSTGRES_PORT}`
+
+Фронтенд поднимается отдельно из репозитория `KomSync_Ui` своим `docker-compose.yml`. Для контейнера Nginx укажите `BACKEND_UPSTREAM=http://host.docker.internal:${BACKEND_PORT}` (в compose уже добавлен `extra_hosts: host-gateway`), чтобы проксировать на API на хосте при деплое с `network_mode: host`.

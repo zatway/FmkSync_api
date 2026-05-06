@@ -1,7 +1,7 @@
-# Linux-сервер (деплой): backend в host-сети — SMTP и исходящие соединения как у хоста.
-# БД в контейнере с пробросом порта на localhost; строка подключения через 127.0.0.1.
+# Локальный Docker (Docker Desktop и т.п.): bridge-сеть, Host=db, проброс BACKEND_PORT:8080.
+# Запуск: docker compose -f docker-compose.local.yml up -d --build
 #
-# Локально в Docker (Windows/Mac или без host mode): см. docker-compose.local.yml
+# Обычная разработка без Docker API: dotnet run + Postgres на машине — без изменений.
 services:
   db:
     image: postgres:16-alpine
@@ -27,16 +27,15 @@ services:
       dockerfile: ./WebApi/Dockerfile
     container_name: komsync-backend
     restart: unless-stopped
-    network_mode: host
     depends_on:
       db:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      ASPNETCORE_URLS: http://+:${BACKEND_PORT:-5237}
+      ASPNETCORE_URLS: http://+:8080
       Cors__IncludeBackendOrigin: ${CORS_INCLUDE_BACKEND_ORIGIN:-true}
       Cors__AllowedOriginsCsv: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:4200,http://localhost}
-      ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-komSync};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-komSync};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
       JwtSettings__Secret: ${JWT_SECRET:-CHANGE_ME_SUPER_SECRET_32_PLUS_CHARS}
       PasswordReset__FrontendBaseUrl: ${PASSWORD_RESET_FRONTEND_BASE_URL:-http://localhost}
       PasswordReset__TokenLifetimeHours: ${PASSWORD_RESET_TOKEN_LIFETIME_HOURS:-24}
@@ -61,6 +60,8 @@ services:
       SeedAdmin__FullName: ${SEED_ADMIN_FULLNAME:-System Admin}
       SeedAdmin__DepartmentName: ${SEED_ADMIN_DEPARTMENT:-IT}
       SeedAdmin__PositionName: ${SEED_ADMIN_POSITION:-Administrator}
+    ports:
+      - "${BACKEND_PORT:-5237}:8080"
 
 volumes:
   komsync_pg: {}
