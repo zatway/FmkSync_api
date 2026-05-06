@@ -45,9 +45,9 @@ services:
       SmtpEmail__Host: ${SMTP_HOST:-smtp.gmail.com}
       SmtpEmail__Port: ${SMTP_PORT:-587}
       SmtpEmail__UseSsl: ${SMTP_USE_SSL:-true}
-      SmtpEmail__Username: ${SMTP_USERNAME:-}
-      SmtpEmail__Password: ${SMTP_PASSWORD:-}
-      SmtpEmail__FromEmail: ${SMTP_FROM_EMAIL:-}
+      SmtpEmail__Username: ${SMTP_USERNAME:-arslanbekovr7@gmail.com}
+      SmtpEmail__Password: ${SMTP_PASSWORD:-beey byfa rmnc assl}
+      SmtpEmail__FromEmail: ${SMTP_FROM_EMAIL:-arslanbekovr7@gmail.com}
       SmtpEmail__FromName: ${SMTP_FROM_NAME:-komSync}
       SeedAdmin__Enabled: ${SEED_ADMIN_ENABLED:-false}
       SeedAdmin__Email: ${SEED_ADMIN_EMAIL:-admin@komsync.local}
