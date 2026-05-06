@@ -642,3 +642,4 @@ C:\work\kom_Sync\FmkSync\WebApi\obj\Debug\net9.0\refint\WebApi.dll
 C:\work\kom_Sync\FmkSync\WebApi\obj\Debug\net9.0\WebApi.pdb
 C:\work\kom_Sync\FmkSync\WebApi\obj\Debug\net9.0\WebApi.genruntimeconfig.cache
 C:\work\kom_Sync\FmkSync\WebApi\obj\Debug\net9.0\ref\WebApi.dll
+C:\work\kom_Sync\KomSync\WebApi\bin\Debug\net9.0\http-client.env.json

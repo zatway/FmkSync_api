@@ -6,6 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi;
 using WebApi.Middleware;
+using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,18 +61,14 @@ builder.Services.AddSwaggerGen(opt =>
 
 builder.Services.AddCors(options =>
 {
+    var configuredOrigins = GetCorsOrigins(builder.Configuration);
     options.AddPolicy("AllowFrontendDev", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:3000",     // React/Vite/Next и т.д.
-                "http://localhost:5173",     // Vite default
-                "http://localhost:5174",     // Vite (другой порт)
-                "http://localhost:4200"
-            )
-            .AllowAnyHeader()           // ← важно для Content-Type, Authorization и т.д.
-            .AllowAnyMethod()           // GET, POST, PUT, PATCH, DELETE, OPTIONS
-            .AllowCredentials();        // если используешь куки / credentials: 'include'
+            .WithOrigins(configuredOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -113,6 +112,39 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<KomSyncDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupMigration");
+
+    const int maxAttempts = 10;
+    var delay = TimeSpan.FromSeconds(3);
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+    {
+        try
+        {
+            db.Database.Migrate();
+            logger.LogInformation("Database migrations applied successfully on attempt {Attempt}.", attempt);
+            break;
+        }
+        catch (Exception ex) when (attempt < maxAttempts)
+        {
+            logger.LogWarning(ex,
+                "Failed to apply database migrations on attempt {Attempt}/{MaxAttempts}. Retrying in {DelaySeconds}s.",
+                attempt,
+                maxAttempts,
+                delay.TotalSeconds);
+            await Task.Delay(delay);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to apply database migrations after {MaxAttempts} attempts.", maxAttempts);
+            throw;
+        }
+    }
+}
+
 app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
@@ -138,3 +170,67 @@ app.MapHub<WebApi.Hubs.NotificationHub>("/hubs/notifications")
     .RequireCors("AllowFrontendDev");
 
 app.Run();
+
+static string[] GetCorsOrigins(IConfiguration configuration)
+{
+    var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    var fromArray = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+    foreach (var origin in fromArray)
+        AddOrigin(result, origin);
+
+    var csv = configuration["Cors:AllowedOriginsCsv"];
+    if (!string.IsNullOrWhiteSpace(csv))
+    {
+        foreach (var origin in csv.Split(',', ';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            AddOrigin(result, origin);
+    }
+
+    var includeBackendOrigin = configuration.GetValue<bool?>("Cors:IncludeBackendOrigin") ?? true;
+    if (includeBackendOrigin)
+    {
+        var urls = configuration["ASPNETCORE_URLS"];
+        foreach (var origin in GetOriginsFromAspNetCoreUrls(urls))
+            AddOrigin(result, origin);
+    }
+
+    if (result.Count == 0)
+        throw new InvalidOperationException("No CORS origins configured. Set Cors:AllowedOrigins or Cors:AllowedOriginsCsv.");
+
+    return result.ToArray();
+}
+
+static void AddOrigin(ISet<string> set, string? origin)
+{
+    if (string.IsNullOrWhiteSpace(origin))
+        return;
+
+    if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+    {
+        set.Add(uri.GetLeftPart(UriPartial.Authority));
+    }
+}
+
+static IEnumerable<string> GetOriginsFromAspNetCoreUrls(string? urls)
+{
+    if (string.IsNullOrWhiteSpace(urls))
+        yield break;
+
+    foreach (var item in urls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+    {
+        if (Uri.TryCreate(item, UriKind.Absolute, out var uri))
+        {
+            yield return uri.GetLeftPart(UriPartial.Authority);
+            continue;
+        }
+
+        var wildcard = Regex.Match(item, @"^(?<scheme>https?)://[\+\*]:(?<port>\d+)$", RegexOptions.IgnoreCase);
+        if (wildcard.Success)
+        {
+            var scheme = wildcard.Groups["scheme"].Value.ToLowerInvariant();
+            var port = wildcard.Groups["port"].Value;
+            yield return $"{scheme}://localhost:{port}";
+            yield return $"{scheme}://127.0.0.1:{port}";
+        }
+    }
+}

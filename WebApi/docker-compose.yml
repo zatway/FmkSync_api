@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: komsync-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-komSync}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - komsync_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-komSync}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ..
+      dockerfile: ./WebApi/Dockerfile
+    container_name: komsync-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_URLS: http://+:8080
+      Cors__IncludeBackendOrigin: ${CORS_INCLUDE_BACKEND_ORIGIN:-true}
+      Cors__AllowedOriginsCsv: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:4200,http://localhost}
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-komSync};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      JwtSettings__Secret: ${JWT_SECRET:-CHANGE_ME_SUPER_SECRET_32_PLUS_CHARS}
+      PasswordReset__FrontendBaseUrl: ${PASSWORD_RESET_FRONTEND_BASE_URL:-http://localhost}
+      PasswordReset__TokenLifetimeHours: ${PASSWORD_RESET_TOKEN_LIFETIME_HOURS:-24}
+      DeadlineReminders__Enabled: ${DEADLINE_REMINDERS_ENABLED:-true}
+      DeadlineReminders__IntervalHours: ${DEADLINE_REMINDERS_INTERVAL_HOURS:-1}
+      DeadlineReminders__OffsetsDays__0: ${DEADLINE_REMINDERS_OFFSET_0:-7}
+      DeadlineReminders__OffsetsDays__1: ${DEADLINE_REMINDERS_OFFSET_1:-3}
+      DeadlineReminders__OffsetsDays__2: ${DEADLINE_REMINDERS_OFFSET_2:-1}
+      DeadlineReminders__OffsetsDays__3: ${DEADLINE_REMINDERS_OFFSET_3:-0}
+      SmtpEmail__Enabled: ${SMTP_ENABLED:-false}
+      SmtpEmail__Host: ${SMTP_HOST:-smtp.gmail.com}
+      SmtpEmail__Port: ${SMTP_PORT:-587}
+      SmtpEmail__UseSsl: ${SMTP_USE_SSL:-true}
+      SmtpEmail__Username: ${SMTP_USERNAME:-}
+      SmtpEmail__Password: ${SMTP_PASSWORD:-}
+      SmtpEmail__FromEmail: ${SMTP_FROM_EMAIL:-}
+      SmtpEmail__FromName: ${SMTP_FROM_NAME:-komSync}
+      SeedAdmin__Enabled: ${SEED_ADMIN_ENABLED:-false}
+      SeedAdmin__Email: ${SEED_ADMIN_EMAIL:-admin@komsync.local}
+      SeedAdmin__Password: ${SEED_ADMIN_PASSWORD:-Admin123!}
+      SeedAdmin__FullName: ${SEED_ADMIN_FULLNAME:-System Admin}
+      SeedAdmin__DepartmentName: ${SEED_ADMIN_DEPARTMENT:-IT}
+      SeedAdmin__PositionName: ${SEED_ADMIN_POSITION:-Administrator}
+    ports:
+      - "${BACKEND_PORT:-5237}:8080"
+
+volumes:
+  komsync_pg: {}

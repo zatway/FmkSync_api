@@ -1,4 +1,4 @@
-# FMK Sync — развёртывание
+# komSync — развёртывание
 
 ## Требования
 
@@ -8,7 +8,7 @@
 
 ## База данных
 
-1. Создайте БД (например `fmkSync`).
+1. Создайте БД (например `komSync`).
 2. Укажите строку подключения в `WebApi/appsettings.json` → `ConnectionStrings:DefaultConnection`.
 3. Примените миграции из каталога `Infrastructure/Migrations`:
 
@@ -52,6 +52,43 @@ npm run preview
 
 Для отчёта по п. приёмки можно использовать [k6](https://k6.io/) или [NBomber](https://nbomber.com/): 100+ параллельных запросов к типовым GET (`/api/v1/projects`, `/api/v1/search?q=test`) с заголовком `Authorization: Bearer …`.
 
-## Docker Compose (опционально)
+## Docker Compose (backend + db)
 
-В корне репозитория `docker-compose.yml` поднимает только PostgreSQL для локальной разработки. API и UI запускайте отдельно (см. выше).
+В директории `KomSync/WebApi` лежит `docker-compose.yml`, который поднимает:
+
+- `backend` (ASP.NET Core WebApi)
+- `db` (PostgreSQL 16)
+
+### Переменные окружения
+
+Скопируйте шаблон и заполните значения:
+
+```bash
+cd KomSync/WebApi
+cp .env.example .env
+```
+
+Основные переменные (для backend):
+
+- `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_PORT`
+- `BACKEND_PORT`
+- `ASPNETCORE_ENVIRONMENT`
+- `JWT_SECRET`
+- `PASSWORD_RESET_FRONTEND_BASE_URL`, `PASSWORD_RESET_TOKEN_LIFETIME_HOURS`
+- `DEADLINE_REMINDERS_ENABLED`, `DEADLINE_REMINDERS_INTERVAL_HOURS`, `DEADLINE_REMINDERS_OFFSET_0..3`
+- `SMTP_ENABLED`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USE_SSL`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME`
+- `SEED_ADMIN_ENABLED`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_FULLNAME`, `SEED_ADMIN_DEPARTMENT`, `SEED_ADMIN_POSITION`
+### Запуск
+
+```bash
+cd KomSync/WebApi
+docker compose up -d --build
+```
+
+После старта:
+
+- Backend: `http://localhost:5237`
+- Swagger (в Development): `http://localhost:5237/`
+- PostgreSQL: `localhost:5432`
+
+Фронтенд поднимается отдельно из репозитория `KomSync_Ui` своим `docker-compose.yml`.
