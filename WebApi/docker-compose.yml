@@ -41,7 +41,7 @@ services:
       DeadlineReminders__OffsetsDays__1: ${DEADLINE_REMINDERS_OFFSET_1:-3}
       DeadlineReminders__OffsetsDays__2: ${DEADLINE_REMINDERS_OFFSET_2:-1}
       DeadlineReminders__OffsetsDays__3: ${DEADLINE_REMINDERS_OFFSET_3:-0}
-      SmtpEmail__Enabled: ${SMTP_ENABLED:-false}
+      SmtpEmail__Enabled: ${SMTP_ENABLED:-true}
       SmtpEmail__Host: ${SMTP_HOST:-smtp.gmail.com}
       SmtpEmail__Port: ${SMTP_PORT:-587}
       SmtpEmail__UseSsl: ${SMTP_USE_SSL:-true}

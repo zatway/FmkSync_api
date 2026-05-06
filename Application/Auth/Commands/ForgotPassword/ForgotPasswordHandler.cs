@@ -45,7 +45,9 @@ public class ForgotPasswordHandler(
         context.PasswordResetTokens.Add(entity);
         await context.SaveChangesAsync(cancellationToken);
 
-        var baseUrl = options.Value.FrontendBaseUrl.TrimEnd('/');
+        var baseUrl = NormalizeBaseUrl(request.FrontendBaseUrl)
+            ?? NormalizeBaseUrl(options.Value.FrontendBaseUrl)
+            ?? "http://localhost";
         var url = $"{baseUrl}/reset-password?token={Uri.EscapeDataString(rawToken)}";
 
         await emailSender.SendAsync(
@@ -61,5 +63,16 @@ public class ForgotPasswordHandler(
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
         return Convert.ToHexString(bytes).ToLowerInvariant();
+    }
+
+    private static string? NormalizeBaseUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return null;
+
+        if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out var uri))
+            return null;
+
+        return uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
     }
 }

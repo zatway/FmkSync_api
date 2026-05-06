@@ -2,6 +2,7 @@ using Application.DTO.Auth;
 using Application.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace WebApi.Controllers.v1;
 
@@ -40,7 +41,8 @@ public class AuthController(IMediator mediator, ICurrentUserService _currentUser
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
-        await mediator.Send(request);
+        var frontendBaseUrl = ResolveFrontendBaseUrl();
+        await mediator.Send(request with { FrontendBaseUrl = frontendBaseUrl });
         return NoContent();
     }
 
@@ -49,5 +51,18 @@ public class AuthController(IMediator mediator, ICurrentUserService _currentUser
     {
         await mediator.Send(request);
         return NoContent();
+    }
+
+    private string? ResolveFrontendBaseUrl()
+    {
+        var origin = Request.Headers.Origin.ToString();
+        if (Uri.TryCreate(origin, UriKind.Absolute, out var originUri))
+            return originUri.GetLeftPart(UriPartial.Authority);
+
+        var referer = Request.Headers.Referer.ToString();
+        if (Uri.TryCreate(referer, UriKind.Absolute, out var refererUri))
+            return refererUri.GetLeftPart(UriPartial.Authority);
+
+        return null;
     }
 }
