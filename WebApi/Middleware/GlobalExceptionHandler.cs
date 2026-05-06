@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 
 namespace WebApi.Middleware;
 
@@ -154,6 +155,31 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
             httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             await httpContext.Response.WriteAsJsonAsync(details, cancellationToken);
+            return true;
+        }
+
+        if (exception is SmtpException smtpException)
+        {
+            await WriteProblemAsync(
+                httpContext,
+                cancellationToken,
+                StatusCodes.Status503ServiceUnavailable,
+                "Сервис отправки почты недоступен",
+                smtpException.InnerException?.Message ?? smtpException.Message,
+                "https://tools.ietf.org/html/rfc7231#section-6.6.4");
+            return true;
+        }
+
+        if (exception is TimeoutException timeoutException &&
+            timeoutException.Message.Contains("SMTP", StringComparison.OrdinalIgnoreCase))
+        {
+            await WriteProblemAsync(
+                httpContext,
+                cancellationToken,
+                StatusCodes.Status503ServiceUnavailable,
+                "Сервис отправки почты недоступен",
+                timeoutException.Message,
+                "https://tools.ietf.org/html/rfc7231#section-6.6.4");
             return true;
         }
 

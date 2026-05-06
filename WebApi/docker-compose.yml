@@ -29,6 +29,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ASPNETCORE_URLS: http://+:8080
+      DOTNET_SYSTEM_NET_DISABLEIPV6: "1"
       Cors__IncludeBackendOrigin: ${CORS_INCLUDE_BACKEND_ORIGIN:-true}
       Cors__AllowedOriginsCsv: ${CORS_ALLOWED_ORIGINS:-http://45.10.41.189,http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:4200,http://localhost}
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-komSync};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
@@ -49,6 +50,7 @@ services:
       SmtpEmail__Password: ${SMTP_PASSWORD:-beey byfa rmnc assl}
       SmtpEmail__FromEmail: ${SMTP_FROM_EMAIL:-arslanbekovr7@gmail.com}
       SmtpEmail__FromName: ${SMTP_FROM_NAME:-komSync}
+      SmtpEmail__TimeoutSeconds: ${SMTP_TIMEOUT_SECONDS:-20}
       SeedAdmin__Enabled: ${SEED_ADMIN_ENABLED:-false}
       SeedAdmin__Email: ${SEED_ADMIN_EMAIL:-admin@komsync.local}
       SeedAdmin__Password: ${SEED_ADMIN_PASSWORD:-Admin123!}

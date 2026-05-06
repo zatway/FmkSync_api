@@ -15,6 +15,7 @@ public record SmtpEmailSettings
     public string Password { get; init; } = "";
     public string FromEmail { get; init; } = "";
     public string FromName { get; init; } = "KomSync";
+    public int TimeoutSeconds { get; init; } = 20;
 }
 
 public class SmtpEmailSender(IOptions<SmtpEmailSettings> options) : IEmailSender
@@ -39,9 +40,16 @@ public class SmtpEmailSender(IOptions<SmtpEmailSettings> options) : IEmailSender
             Credentials = string.IsNullOrWhiteSpace(_settings.Username)
                 ? CredentialCache.DefaultNetworkCredentials
                 : new NetworkCredential(_settings.Username, _settings.Password),
+            Timeout = Math.Max(5, _settings.TimeoutSeconds) * 1000
         };
 
-        await client.SendMailAsync(message);
+        var timeoutMs = Math.Max(5, _settings.TimeoutSeconds) * 1000;
+        var sendTask = client.SendMailAsync(message);
+        var completed = await Task.WhenAny(sendTask, Task.Delay(timeoutMs, cancellationToken));
+        if (completed != sendTask)
+            throw new TimeoutException($"SMTP timeout after {_settings.TimeoutSeconds} seconds.");
+
+        await sendTask;
     }
 }
 

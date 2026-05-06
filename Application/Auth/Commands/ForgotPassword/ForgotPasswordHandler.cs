@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using Application.Common.Exceptions;
 using Application.DTO.Auth;
 using Application.Interfaces;
 using Application.Options;
@@ -23,7 +24,7 @@ public class ForgotPasswordHandler(
             .FirstOrDefaultAsync(u => u.NormalizedEmail == normalized, cancellationToken);
 
         if (user == null)
-            return true;
+            throw new NotFoundException("Пользователь с таким email не найден.");
 
         var old = context.PasswordResetTokens.Where(t => t.UserId == user.Id && t.UsedAtUtc == null);
         context.PasswordResetTokens.RemoveRange(old);
