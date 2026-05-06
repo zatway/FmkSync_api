@@ -26,10 +26,6 @@
 **/project.assets.json
 **/nuget.config   # ← если локальный
 
-# Entity Framework
-**/Migrations/*.Designer.cs
-# **/Migrations/    ← раскомменти, если миграции НЕ коммитятся
-
 # Docker / local env
 docker-compose.override.yml
 .env
