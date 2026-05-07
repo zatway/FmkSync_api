@@ -18,11 +18,4 @@
         <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
         <ProjectReference Include="..\Application\Application.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="uploads\c8e34abd0e3744adae53ec2c4a6d2c81_Untitled.png" />
-      <None Remove="uploads\5295c82a94d14089905c121a91a89b66_ChatGPT Image 4 мая 2026 г., 22_02_58 (2).png" />
-      <None Remove="uploads\2b173a8f8557429c9e129cd91996a6f2_ChatGPT Image 4 мая 2026 г., 22_02_58 (2).png" />
-      <None Remove="uploads\158f103a1e4646b9be94fcd3815bcd78_ChatGPT Image 4 мая 2026 г., 22_02_58 (2).png" />
-    </ItemGroup>
 </Project>

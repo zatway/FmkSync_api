@@ -5,6 +5,9 @@
 **/out/
 **/publish/
 
+# Сгенерированные пользователями файлы (вложения, аватары в файловом хранилище)
+**/uploads/
+
 # Rider / JetBrains
 .idea/
 *.sln.DotSettings
