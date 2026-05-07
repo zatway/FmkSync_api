@@ -4,8 +4,10 @@ using Application.Knowledge.Commands.DeleteKnowledgeArticle;
 using Application.Knowledge.Commands.UpdateKnowledgeArticle;
 using Application.Knowledge.Queries.GetKnowledgeArticleBySlug;
 using Application.Knowledge.Queries.GetKnowledgeArticles;
+using Application.Knowledge.Commands.UploadKnowledgeArticleAttachments;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers.v1;
@@ -47,6 +49,16 @@ public class KnowledgeController(IMediator mediator) : ControllerBase
     {
         var updated = await mediator.Send(command with { Id = id }, cancellationToken);
         return updated == null ? NotFound() : Ok(updated);
+    }
+
+    [HttpPost("{id:guid}/attachments")]
+    public async Task<IActionResult> UploadAttachments(
+        Guid id,
+        [FromForm] List<IFormFile> files,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new UploadKnowledgeArticleAttachmentsCommand(id, files), cancellationToken);
+        return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]

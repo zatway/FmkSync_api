@@ -72,11 +72,10 @@ public class GetProjectByIdHandler(IKomSyncContext context, ICurrentUserService 
         var attachments = project.Attachments
             .OrderBy(a => a.CreatedAt)
             .Select(a => new FileAttachmentDto(
-                a.Id,
+                FileIdCodec.ProjectAttachment(a.Id),
                 a.FileName,
                 a.ContentType,
                 a.SizeBytes,
-                $"/api/v1/ProjectAttachments/attachments/{a.Id}",
                 a.CreatedAt))
             .ToList();
 

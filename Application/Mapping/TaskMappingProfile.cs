@@ -2,6 +2,7 @@ using Application.DTO.TaskComment;
 using Application.DTO.TaskHistory;
 using Application.DTO.Tasks;
 using Application.DTO.Attachments;
+using Application.Common;
 using AutoMapper;
 using Domain.Entities;
 
@@ -46,18 +47,19 @@ public class TaskMappingProfile : AutoMapper.Profile
 
         CreateMap<TaskCommentAttachment, CommentAttachmentDto>()
             .ConstructUsing(a => new CommentAttachmentDto(
-                a.Id,
+                FileIdCodec.TaskCommentAttachment(a.Id),
                 a.FileName,
                 a.ContentType,
                 a.SizeBytes,
-                $"/api/v1/TaskComments/attachments/{a.Id}",
                 a.CreatedAt
             ));
 
         CreateMap<TaskHistory, TaskHistoryDto>()
             .ForMember(d => d.ChangedByName, opt => opt.MapFrom(s =>
                 s.ChangedByDisplayName
-                ?? (s.ChangedBy != null ? s.ChangedBy.FullName : null)));
+                ?? (s.ChangedBy != null ? s.ChangedBy.FullName : null)))
+            .ForMember(d => d.ChangedByHasAvatar, opt => opt.MapFrom(s =>
+                s.ChangedBy != null && s.ChangedBy.Avatar != null));
 
         CreateMap<User, TaskAssigneeDto>()
             .ConstructUsing(u => new TaskAssigneeDto(u.Id, u.FullName, null, u.Avatar != null));

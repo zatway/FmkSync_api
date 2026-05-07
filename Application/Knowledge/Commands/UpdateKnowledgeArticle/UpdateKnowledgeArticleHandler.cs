@@ -159,6 +159,8 @@ public class UpdateKnowledgeArticleHandler(
 
             .Include(a => a.Project)
 
+            .Include(a => a.Attachments)
+
             .FirstAsync(a => a.Id == article.Id, cancellationToken);
 
 

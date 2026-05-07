@@ -25,6 +25,7 @@ public interface IKomSyncContext
     DbSet<TaskHistory> TaskHistories { get; }
     DbSet<TaskComment> TaskComments { get; }
     DbSet<KnowledgeArticle> KnowledgeArticles { get; }
+    DbSet<KnowledgeArticleAttachment> KnowledgeArticleAttachments { get; }
     DbSet<PasswordResetToken> PasswordResetTokens { get; }
     DbSet<TaskAttachment> TaskAttachments { get; }
     DbSet<ProjectAttachment> ProjectAttachments { get; }

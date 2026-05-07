@@ -1,4 +1,5 @@
 using Application.DTO.Attachments;
+using Application.Common;
 using Application.Interfaces;
 using Domain.Entities;
 using MediatR;
@@ -49,11 +50,10 @@ public class UploadProjectCommentAttachmentsHandler(
             comment.Attachments.Add(entity);
 
             created.Add(new CommentAttachmentDto(
-                entity.Id,
+                FileIdCodec.ProjectCommentAttachment(entity.Id),
                 entity.FileName,
                 entity.ContentType,
                 entity.SizeBytes,
-                $"/api/v1/ProjectComments/attachments/{entity.Id}",
                 entity.CreatedAt
             ));
         }

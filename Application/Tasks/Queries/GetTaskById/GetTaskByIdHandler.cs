@@ -45,7 +45,15 @@ public class GetTaskByIdHandler(IKomSyncContext context, IMapper mapper, ICurren
         foreach (var c in commentDtos)
         {
             var entity = task.Comments.First(e => e.Id == c.Id);
-            c.Attachments = mapper.Map<CommentAttachmentDto[]>(entity.Attachments.OrderBy(a => a.CreatedAt).ToArray());
+            c.Attachments = entity.Attachments
+                .OrderBy(a => a.CreatedAt)
+                .Select(a => new CommentAttachmentDto(
+                    FileIdCodec.TaskCommentAttachment(a.Id),
+                    a.FileName,
+                    a.ContentType,
+                    a.SizeBytes,
+                    a.CreatedAt))
+                .ToArray();
         }
 
         var commentList = commentDtos.ToList();
@@ -72,11 +80,10 @@ public class GetTaskByIdHandler(IKomSyncContext context, IMapper mapper, ICurren
         dto.FileAttachments = task.Attachments
             .OrderBy(a => a.CreatedAt)
             .Select(a => new FileAttachmentDto(
-                a.Id,
+                FileIdCodec.TaskAttachment(a.Id),
                 a.FileName,
                 a.ContentType,
                 a.SizeBytes,
-                $"/api/v1/TaskAttachments/attachments/{a.Id}",
                 a.CreatedAt))
             .ToList();
 

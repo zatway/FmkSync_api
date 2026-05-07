@@ -58,11 +58,10 @@ public class UploadTaskAttachmentHandler(
             context.TaskAttachments.Add(entity);
 
             created.Add(new FileAttachmentDto(
-                entity.Id,
+                FileIdCodec.TaskAttachment(entity.Id),
                 entity.FileName,
                 entity.ContentType,
                 entity.SizeBytes,
-                $"/api/v1/TaskAttachments/attachments/{entity.Id}",
                 entity.CreatedAt));
         }
 

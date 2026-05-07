@@ -7,6 +7,7 @@ public record ProjectBriefDto(
     string? Description,
     Guid OwnerId,
     string OwnerName,
+    bool OwnerHasAvatar,
     int MemberCount,
     int TaskCount,
     int OpenTaskCount,

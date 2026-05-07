@@ -60,11 +60,10 @@ public class UploadTaskCommentAttachmentsHandler(
             comment.Attachments.Add(entity);
 
             created.Add(new CommentAttachmentDto(
-                entity.Id,
+                FileIdCodec.TaskCommentAttachment(entity.Id),
                 entity.FileName,
                 entity.ContentType,
                 entity.SizeBytes,
-                $"/api/v1/TaskComments/attachments/{entity.Id}",
                 entity.CreatedAt
             ));
         }

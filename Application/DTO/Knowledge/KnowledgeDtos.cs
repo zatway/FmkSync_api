@@ -1,3 +1,5 @@
+using Application.Common;
+using Application.DTO.Attachments;
 using Domain.Entities;
 
 namespace Application.DTO.Knowledge;
@@ -32,12 +34,23 @@ public record KnowledgeArticleDetailDto(
     string? ProjectName,
     Guid? ProjectTaskId,
     string? TaskDisplayKey,
-    string? TaskTitle);
+    string? TaskTitle,
+    IReadOnlyList<CommentAttachmentDto> Attachments);
 
 public static class KnowledgeArticleDtoFactory
 {
     public static KnowledgeArticleDetailDto ToDetailDto(KnowledgeArticle a)
     {
+        var attachments = (a.Attachments ?? Array.Empty<KnowledgeArticleAttachment>())
+            .OrderBy(x => x.CreatedAt)
+            .Select(x => new CommentAttachmentDto(
+                FileIdCodec.KnowledgeArticleAttachment(x.Id),
+                x.FileName,
+                x.ContentType,
+                x.SizeBytes,
+                x.CreatedAt))
+            .ToList();
+
         return new KnowledgeArticleDetailDto(
             a.Id,
             a.Title,
@@ -54,6 +67,7 @@ public static class KnowledgeArticleDtoFactory
             a.Project?.Name,
             null,
             null,
-            null);
+            null,
+            attachments);
     }
 }

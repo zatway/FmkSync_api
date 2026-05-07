@@ -65,6 +65,7 @@ public class CreateKnowledgeArticleHandler(
             .AsNoTracking()
             .Include(a => a.Author)
             .Include(a => a.Project)
+            .Include(a => a.Attachments)
             .FirstAsync(a => a.Id == entity.Id, cancellationToken);
 
         return KnowledgeArticleDtoFactory.ToDetailDto(saved);

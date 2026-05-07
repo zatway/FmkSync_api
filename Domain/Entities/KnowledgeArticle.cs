@@ -43,4 +43,6 @@ public class KnowledgeArticle : BaseEntity
     public User Author { get; set; } = null!;
 
     public int SortOrder { get; set; }
+
+    public ICollection<KnowledgeArticleAttachment> Attachments { get; set; } = new List<KnowledgeArticleAttachment>();
 }

@@ -1,11 +1,9 @@
 using Application.DTO.Tasks;
-using Application.Interfaces;
 using Application.Tasks.Commands.UploadTaskAttachment;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Controllers.v1;
 
@@ -78,36 +76,4 @@ public class TaskController(IMediator mediator) : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{taskId:guid}/attachments/{attachmentId:guid}/download")]
-    [HttpGet("/api/v1/TaskAttachments/attachments/{attachmentId:guid}")]
-    public async Task<IActionResult> DownloadTaskAttachment(
-        [FromServices] IKomSyncContext context,
-        [FromServices] IFileStorage storage,
-        [FromServices] ICurrentUserService currentUser,
-        [FromRoute] Guid taskId,
-        [FromRoute] Guid attachmentId,
-        CancellationToken cancellationToken)
-    {
-        var att = await context.TaskAttachments
-            .AsNoTracking()
-            .Include(a => a.ProjectTask)
-            .ThenInclude(t => t!.Project)
-            .ThenInclude(p => p.Members)
-            .FirstOrDefaultAsync(
-                a => a.Id == attachmentId && (taskId == Guid.Empty || a.ProjectTaskId == taskId),
-                cancellationToken);
-
-        if (att == null) return NotFound();
-
-        var uid = currentUser.UserId ?? Guid.Empty;
-        if (att.ProjectTask == null ||
-            !Application.Common.ProjectAccessRules.UserCanViewProject(
-                currentUser.Role, uid, att.ProjectTask.Project, currentUser.DepartmentId))
-            return Forbid();
-
-        var stream = await storage.OpenReadAsync(att.StoredPath, cancellationToken);
-        if (stream == null) return NotFound();
-
-        return File(stream, att.ContentType ?? "application/octet-stream", att.FileName);
-    }
 }

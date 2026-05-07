@@ -32,6 +32,7 @@ public class KomSyncDbContext(DbContextOptions<KomSyncDbContext> options, ICurre
     public DbSet<TaskHistory> TaskHistories => Set<TaskHistory>();
     public DbSet<TaskComment> TaskComments => Set<TaskComment>();
     public DbSet<KnowledgeArticle> KnowledgeArticles => Set<KnowledgeArticle>();
+    public DbSet<KnowledgeArticleAttachment> KnowledgeArticleAttachments => Set<KnowledgeArticleAttachment>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<TaskAttachment> TaskAttachments => Set<TaskAttachment>();
     public DbSet<ProjectAttachment> ProjectAttachments => Set<ProjectAttachment>();

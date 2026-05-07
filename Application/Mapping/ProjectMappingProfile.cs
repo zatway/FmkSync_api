@@ -33,6 +33,7 @@ namespace Application.Mapping
 
             CreateMap<Project, ProjectBriefDto>()
                 .ForMember(d => d.OwnerName, opt => opt.MapFrom(s => s.Owner != null ? s.Owner.FullName : "Не назначен"))
+                .ForMember(d => d.OwnerHasAvatar, opt => opt.MapFrom(s => s.Owner != null && s.Owner.Avatar != null))
                 .ForMember(dest => dest.Icon, opt => opt.MapFrom(src => src.Icon ?? ""))
                 .ForMember(dest => dest.IsArchived, opt => opt.MapFrom(src => src.IsArchived));
             
@@ -49,13 +50,14 @@ namespace Application.Mapping
                 .ForMember(d => d.ChangedAt, opt => opt.MapFrom(s => s.CreatedAt))
                 .ForMember(d => d.ChangedBy, opt => opt.MapFrom(s =>
                     s.ChangedBy != null
-                        ? new ChangedByDto(s.ChangedBy.Id, s.ChangedBy.FullName)
+                        ? new ChangedByDto(s.ChangedBy.Id, s.ChangedBy.FullName, s.ChangedBy.Avatar != null)
                         : new ChangedByDto(
                             Guid.Empty,
-                            string.IsNullOrWhiteSpace(s.ChangedByDisplayName) ? "—" : s.ChangedByDisplayName!)));
+                            string.IsNullOrWhiteSpace(s.ChangedByDisplayName) ? "—" : s.ChangedByDisplayName!,
+                            false)));
 
             CreateMap<User, ChangedByDto>()
-                .ConstructUsing(u => new ChangedByDto(u.Id, u.FullName));
+                .ConstructUsing(u => new ChangedByDto(u.Id, u.FullName, u.Avatar != null));
         }
     }
 }

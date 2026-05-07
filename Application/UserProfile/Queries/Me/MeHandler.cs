@@ -15,6 +15,7 @@ public class MeHandler(
         var user = await context.Users
             .Where(u => u.Id == request.UserId)
             .Select(u => new UserResponse(
+                u.Id,
                 u.FullName,
                 u.Email,
                 u.Role,

@@ -1,5 +1,6 @@
 using Application.DTO.Projects;
 using Application.DTO.Attachments;
+using Application.Common;
 using Application.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -35,11 +36,10 @@ namespace Application.Projects.Queries.GetProjectComments
                     Attachments = c.Attachments
                         .OrderBy(a => a.CreatedAt)
                         .Select(a => new CommentAttachmentDto(
-                            a.Id,
+                            FileIdCodec.ProjectCommentAttachment(a.Id),
                             a.FileName,
                             a.ContentType,
                             a.SizeBytes,
-                            $"/api/v1/ProjectComments/attachments/{a.Id}",
                             a.CreatedAt
                         ))
                         .ToList()

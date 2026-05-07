@@ -57,11 +57,10 @@ public class UploadProjectAttachmentHandler(
             context.ProjectAttachments.Add(entity);
 
             created.Add(new FileAttachmentDto(
-                entity.Id,
+                FileIdCodec.ProjectAttachment(entity.Id),
                 entity.FileName,
                 entity.ContentType,
                 entity.SizeBytes,
-                $"/api/v1/ProjectAttachments/attachments/{entity.Id}",
                 entity.CreatedAt));
         }
 
