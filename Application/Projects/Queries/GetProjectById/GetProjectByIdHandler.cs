@@ -76,7 +76,7 @@ public class GetProjectByIdHandler(IKomSyncContext context, ICurrentUserService 
                 a.FileName,
                 a.ContentType,
                 a.SizeBytes,
-                $"/api/v1/projects/{project.Id}/attachments/{a.Id}/download",
+                $"/api/v1/ProjectAttachments/attachments/{a.Id}",
                 a.CreatedAt))
             .ToList();
 

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace WebApi.Controllers.v1;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/task")]
 [Authorize]
 public class TaskController(IMediator mediator) : ControllerBase
 {
@@ -79,6 +79,7 @@ public class TaskController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{taskId:guid}/attachments/{attachmentId:guid}/download")]
+    [HttpGet("/api/v1/TaskAttachments/attachments/{attachmentId:guid}")]
     public async Task<IActionResult> DownloadTaskAttachment(
         [FromServices] IKomSyncContext context,
         [FromServices] IFileStorage storage,
@@ -92,7 +93,9 @@ public class TaskController(IMediator mediator) : ControllerBase
             .Include(a => a.ProjectTask)
             .ThenInclude(t => t!.Project)
             .ThenInclude(p => p.Members)
-            .FirstOrDefaultAsync(a => a.Id == attachmentId && a.ProjectTaskId == taskId, cancellationToken);
+            .FirstOrDefaultAsync(
+                a => a.Id == attachmentId && (taskId == Guid.Empty || a.ProjectTaskId == taskId),
+                cancellationToken);
 
         if (att == null) return NotFound();
 

@@ -53,7 +53,7 @@ public class UploadProjectCommentAttachmentsHandler(
                 entity.FileName,
                 entity.ContentType,
                 entity.SizeBytes,
-                $"/api/v1/projects/comment-attachments/{entity.Id}",
+                $"/api/v1/ProjectComments/attachments/{entity.Id}",
                 entity.CreatedAt
             ));
         }

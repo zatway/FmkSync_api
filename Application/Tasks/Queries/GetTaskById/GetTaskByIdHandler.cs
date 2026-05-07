@@ -76,7 +76,7 @@ public class GetTaskByIdHandler(IKomSyncContext context, IMapper mapper, ICurren
                 a.FileName,
                 a.ContentType,
                 a.SizeBytes,
-                $"/api/v1/Task/{task.Id}/attachments/{a.Id}/download",
+                $"/api/v1/TaskAttachments/attachments/{a.Id}",
                 a.CreatedAt))
             .ToList();
 

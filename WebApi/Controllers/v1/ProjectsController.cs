@@ -167,6 +167,7 @@ namespace WebApi.Controllers.v1
         }
 
         [HttpGet("comment-attachments/{id:guid}")]
+        [HttpGet("/api/v1/ProjectComments/attachments/{id:guid}")]
         public async Task<IActionResult> DownloadProjectCommentAttachment(
             [FromServices] IKomSyncContext context,
             [FromServices] IFileStorage storage,
@@ -193,6 +194,7 @@ namespace WebApi.Controllers.v1
         }
 
         [HttpGet("{projectId:guid}/attachments/{attachmentId:guid}/download")]
+        [HttpGet("/api/v1/ProjectAttachments/attachments/{attachmentId:guid}")]
         public async Task<IActionResult> DownloadProjectAttachment(
             [FromServices] IKomSyncContext context,
             [FromServices] IFileStorage storage,
@@ -205,7 +207,9 @@ namespace WebApi.Controllers.v1
                 .AsNoTracking()
                 .Include(a => a.Project)
                 .ThenInclude(p => p.Members)
-                .FirstOrDefaultAsync(a => a.Id == attachmentId && a.ProjectId == projectId, cancellationToken);
+                .FirstOrDefaultAsync(
+                    a => a.Id == attachmentId && (projectId == Guid.Empty || a.ProjectId == projectId),
+                    cancellationToken);
 
             if (att == null) return NotFound();
 

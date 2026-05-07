@@ -39,7 +39,7 @@ namespace Application.Projects.Queries.GetProjectComments
                             a.FileName,
                             a.ContentType,
                             a.SizeBytes,
-                            $"/api/v1/projects/comment-attachments/{a.Id}",
+                            $"/api/v1/ProjectComments/attachments/{a.Id}",
                             a.CreatedAt
                         ))
                         .ToList()

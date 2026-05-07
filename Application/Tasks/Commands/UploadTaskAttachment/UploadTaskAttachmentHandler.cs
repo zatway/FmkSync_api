@@ -62,7 +62,7 @@ public class UploadTaskAttachmentHandler(
                 entity.FileName,
                 entity.ContentType,
                 entity.SizeBytes,
-                $"/api/v1/Task/{task.Id}/attachments/{entity.Id}/download",
+                $"/api/v1/TaskAttachments/attachments/{entity.Id}",
                 entity.CreatedAt));
         }
 

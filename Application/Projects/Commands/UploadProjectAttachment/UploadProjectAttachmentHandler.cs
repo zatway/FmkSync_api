@@ -61,7 +61,7 @@ public class UploadProjectAttachmentHandler(
                 entity.FileName,
                 entity.ContentType,
                 entity.SizeBytes,
-                $"/api/v1/projects/{project.Id}/attachments/{entity.Id}/download",
+                $"/api/v1/ProjectAttachments/attachments/{entity.Id}",
                 entity.CreatedAt));
         }
 

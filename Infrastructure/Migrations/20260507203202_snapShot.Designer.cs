@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(KomSyncDbContext))]
-    [Migration("20260507195612_snapShot")]
+    [Migration("20260507203202_snapShot")]
     partial class snapShot
     {
         /// <inheritdoc />

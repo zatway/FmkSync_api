@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace WebApi.Controllers.v1;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/taskComments")]
 [Authorize]
 public class TaskCommentsController(IMediator mediator) : ControllerBase
 {
