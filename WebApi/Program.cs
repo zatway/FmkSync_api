@@ -77,73 +77,41 @@ var secret = jwtSettings["Secret"] ?? "Super_Secret_Key_At_Least_32_Chars_Long";
 var key = Encoding.ASCII.GetBytes(secret);
 
 builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-    x.Events = new JwtBearerEvents
+        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(x =>
     {
-        OnMessageReceived = context =>
+        x.RequireHttpsMetadata = false;
+        x.SaveToken = true;
+        x.TokenValidationParameters = new TokenValidationParameters
         {
-            var path = context.HttpContext.Request.Path;
-            if (path.StartsWithSegments("/hubs"))
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+        x.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
             {
-                var accessToken = context.Request.Query["access_token"];
-                if (!string.IsNullOrEmpty(accessToken))
-                    context.Token = accessToken;
+                var path = context.HttpContext.Request.Path;
+                if (path.StartsWithSegments("/hubs"))
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    if (!string.IsNullOrEmpty(accessToken))
+                        context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
             }
-            return Task.CompletedTask;
-        }
-    };
-});
+        };
+    });
 
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<KomSyncDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupMigration");
-
-    const int maxAttempts = 10;
-    var delay = TimeSpan.FromSeconds(3);
-
-    for (var attempt = 1; attempt <= maxAttempts; attempt++)
-    {
-        try
-        {
-            db.Database.Migrate();
-            logger.LogInformation("Database migrations applied successfully on attempt {Attempt}.", attempt);
-            break;
-        }
-        catch (Exception ex) when (attempt < maxAttempts)
-        {
-            logger.LogWarning(ex,
-                "Failed to apply database migrations on attempt {Attempt}/{MaxAttempts}. Retrying in {DelaySeconds}s.",
-                attempt,
-                maxAttempts,
-                delay.TotalSeconds);
-            await Task.Delay(delay);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to apply database migrations after {MaxAttempts} attempts.", maxAttempts);
-            throw;
-        }
-    }
-}
 
 app.UseExceptionHandler();
 
@@ -158,7 +126,24 @@ if (app.Environment.IsDevelopment())
 }
 
 if (!app.Environment.IsDevelopment())
+{
     app.UseHttpsRedirection();
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<KomSyncDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupMigration");
+
+    try
+    {
+        db.Database.Migrate();
+        logger.LogInformation("Database migrations applied successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex,
+            "Failed to apply database migrations");
+    }
+    scope.Dispose();
+}
 
 app.UseCors("AllowFrontendDev");
 
@@ -182,7 +167,8 @@ static string[] GetCorsOrigins(IConfiguration configuration)
     var csv = configuration["Cors:AllowedOriginsCsv"];
     if (!string.IsNullOrWhiteSpace(csv))
     {
-        foreach (var origin in csv.Split(',', ';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        foreach (var origin in csv.Split(',', ';',
+                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             AddOrigin(result, origin);
     }
 
@@ -195,7 +181,8 @@ static string[] GetCorsOrigins(IConfiguration configuration)
     }
 
     if (result.Count == 0)
-        throw new InvalidOperationException("No CORS origins configured. Set Cors:AllowedOrigins or Cors:AllowedOriginsCsv.");
+        throw new InvalidOperationException(
+            "No CORS origins configured. Set Cors:AllowedOrigins or Cors:AllowedOriginsCsv.");
 
     return result.ToArray();
 }

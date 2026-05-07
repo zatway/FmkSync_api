@@ -643,3 +643,12 @@ C:\work\kom_Sync\FmkSync\WebApi\obj\Debug\net9.0\WebApi.pdb
 C:\work\kom_Sync\FmkSync\WebApi\obj\Debug\net9.0\WebApi.genruntimeconfig.cache
 C:\work\kom_Sync\FmkSync\WebApi\obj\Debug\net9.0\ref\WebApi.dll
 C:\work\kom_Sync\KomSync\WebApi\bin\Debug\net9.0\http-client.env.json
+c:\work\kom_Sync\_tmp_build\appsettings.Development.json
+c:\work\kom_Sync\_tmp_build\appsettings.json
+c:\work\kom_Sync\_tmp_build\http-client.env.json
+c:\work\kom_Sync\_tmp_build\WebApi.staticwebassets.endpoints.json
+c:\work\kom_Sync\_tmp_build\WebApi.exe
+c:\work\kom_Sync\_tmp_build\WebApi.deps.json
+c:\work\kom_Sync\_tmp_build\WebApi.runtimeconfig.json
+c:\work\kom_Sync\_tmp_build\WebApi.dll
+c:\work\kom_Sync\_tmp_build\WebApi.pdb

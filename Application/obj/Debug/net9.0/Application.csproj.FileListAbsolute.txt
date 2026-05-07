@@ -62,3 +62,6 @@ C:\work\kom_Sync\FmkSync\Application\obj\Debug\net9.0\Application.dll
 C:\work\kom_Sync\FmkSync\Application\obj\Debug\net9.0\refint\Application.dll
 C:\work\kom_Sync\FmkSync\Application\obj\Debug\net9.0\Application.pdb
 C:\work\kom_Sync\FmkSync\Application\obj\Debug\net9.0\ref\Application.dll
+c:\work\kom_Sync\_tmp_build\Application.deps.json
+c:\work\kom_Sync\_tmp_build\Application.dll
+c:\work\kom_Sync\_tmp_build\Application.pdb

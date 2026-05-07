@@ -1,4 +1,5 @@
 using Application.Common.Exceptions;
+using Application.Common;
 using Application.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,16 @@ public class UpdateUserAdminHandler(
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
         if (user == null) return false;
+        if (SystemAdminProtection.IsSystemAdminEmail(user.Email))
+            throw new ForbiddenException("Системную учётную запись администратора нельзя изменять.");
+
+        if (request.DepartmentId.HasValue
+            && await SystemAdminProtection.IsProtectedDepartmentIdAsync(context, request.DepartmentId.Value, cancellationToken))
+            throw new ForbiddenException("Нельзя назначать пользователей в системное подразделение.");
+
+        if (request.PositionId.HasValue
+            && await SystemAdminProtection.IsProtectedPositionIdAsync(context, request.PositionId.Value, cancellationToken))
+            throw new ForbiddenException("Нельзя назначать пользователей на системную должность.");
 
         if (!string.IsNullOrWhiteSpace(request.NewPassword))
             user.PasswordHash = passwordHasher.Hash(request.NewPassword.Trim());

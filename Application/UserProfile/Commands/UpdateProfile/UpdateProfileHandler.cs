@@ -1,4 +1,5 @@
 using Application.Common.Exceptions;
+using Application.Common;
 using Application.DTO.UserProfile;
 using Application.Interfaces;
 using MediatR;
@@ -23,6 +24,8 @@ public class UpdateProfileHandler(
 
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
+        if (SystemAdminProtection.IsSystemAdminEmail(user.Email))
+            throw new ForbiddenException("Системную учётную запись администратора нельзя изменять.");
 
         // --- Аватарка ---
         if (request.AvatarFile != null)
@@ -53,6 +56,8 @@ public class UpdateProfileHandler(
 
         if (request.DepartmentId.HasValue)
         {
+            if (await SystemAdminProtection.IsProtectedDepartmentIdAsync(context, request.DepartmentId.Value, cancellationToken))
+                throw new ForbiddenException("Нельзя переводить пользователя в системное подразделение.");
             var department = await context.Departments
                 .FirstOrDefaultAsync(d => d.Id == request.DepartmentId.Value, cancellationToken);
             if (department == null)
@@ -63,6 +68,8 @@ public class UpdateProfileHandler(
 
         if (request.PositionId.HasValue)
         {
+            if (await SystemAdminProtection.IsProtectedPositionIdAsync(context, request.PositionId.Value, cancellationToken))
+                throw new ForbiddenException("Нельзя назначать системную должность.");
             var position = await context.Positions
                 .FirstOrDefaultAsync(p => p.Id == request.PositionId.Value, cancellationToken);
             if (position == null)

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(KomSyncDbContext))]
-    [Migration("20260506180559_snapShot1")]
-    partial class snapShot1
+    [Migration("20260507195612_snapShot")]
+    partial class snapShot
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

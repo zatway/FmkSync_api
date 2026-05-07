@@ -78,3 +78,7 @@ C:\work\kom_Sync\FmkSync\Infrastructure\obj\Debug\net9.0\refint\Infrastructure.d
 C:\work\kom_Sync\FmkSync\Infrastructure\obj\Debug\net9.0\Infrastructure.pdb
 C:\work\kom_Sync\FmkSync\Infrastructure\obj\Debug\net9.0\Infrastructure.genruntimeconfig.cache
 C:\work\kom_Sync\FmkSync\Infrastructure\obj\Debug\net9.0\ref\Infrastructure.dll
+c:\work\kom_Sync\_tmp_build\Infrastructure.deps.json
+c:\work\kom_Sync\_tmp_build\Infrastructure.runtimeconfig.json
+c:\work\kom_Sync\_tmp_build\Infrastructure.dll
+c:\work\kom_Sync\_tmp_build\Infrastructure.pdb

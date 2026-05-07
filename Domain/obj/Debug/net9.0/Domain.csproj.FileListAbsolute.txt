@@ -50,3 +50,6 @@ C:\work\kom_Sync\FmkSync\Domain\obj\Debug\net9.0\Domain.dll
 C:\work\kom_Sync\FmkSync\Domain\obj\Debug\net9.0\refint\Domain.dll
 C:\work\kom_Sync\FmkSync\Domain\obj\Debug\net9.0\Domain.pdb
 C:\work\kom_Sync\FmkSync\Domain\obj\Debug\net9.0\ref\Domain.dll
+c:\work\kom_Sync\_tmp_build\Domain.deps.json
+c:\work\kom_Sync\_tmp_build\Domain.dll
+c:\work\kom_Sync\_tmp_build\Domain.pdb

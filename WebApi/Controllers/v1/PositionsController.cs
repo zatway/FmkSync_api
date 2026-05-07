@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Application.Common;
 using Application.Organization.Commands.DeletePosition;
 using Domain.Entities;
 using MediatR;
@@ -36,9 +37,13 @@ public class PositionsController(IKomSyncContext context, IMediator mediator) : 
     {
         if (string.IsNullOrWhiteSpace(body.Name))
             return BadRequest("Укажите название");
+        if (SystemAdminProtection.IsProtectedPositionName(body.Name))
+            return BadRequest("Системная должность недоступна для создания/изменения.");
         var depExists = await context.Departments.AnyAsync(d => d.Id == body.DepartmentId, cancellationToken);
         if (!depExists)
             return BadRequest("Подразделение не найдено");
+        if (await SystemAdminProtection.IsProtectedDepartmentIdAsync(context, body.DepartmentId, cancellationToken))
+            return BadRequest("Нельзя добавлять должности в системное подразделение.");
 
         var entity = new Position
         {

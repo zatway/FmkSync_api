@@ -52,17 +52,17 @@ services:
       SmtpEmail__Host: ${SMTP_HOST:-smtp.gmail.com}
       SmtpEmail__Port: ${SMTP_PORT:-587}
       SmtpEmail__UseSsl: ${SMTP_USE_SSL:-true}
-      SmtpEmail__Username: ${SMTP_USERNAME:-arslanbekovr7@gmail.com}
-      SmtpEmail__Password: ${SMTP_PASSWORD:-lyrspwhiysesigse}
-      SmtpEmail__FromEmail: ${SMTP_FROM_EMAIL:-arslanbekovr7@gmail.com}
+      SmtpEmail__Username: ${SMTP_USERNAME:-}
+      SmtpEmail__Password: ${SMTP_PASSWORD:-}
+      SmtpEmail__FromEmail: ${SMTP_FROM_EMAIL:-}
       SmtpEmail__FromName: ${SMTP_FROM_NAME:-komSync}
       SmtpEmail__TimeoutSeconds: ${SMTP_TIMEOUT_SECONDS:-20}
       SeedAdmin__Enabled: ${SEED_ADMIN_ENABLED:-false}
       SeedAdmin__Email: ${SEED_ADMIN_EMAIL:-admin@komsync.local}
       SeedAdmin__Password: ${SEED_ADMIN_PASSWORD:-Admin123!}
       SeedAdmin__FullName: ${SEED_ADMIN_FULLNAME:-System Admin}
-      SeedAdmin__DepartmentName: ${SEED_ADMIN_DEPARTMENT:-IT}
-      SeedAdmin__PositionName: ${SEED_ADMIN_POSITION:-Administrator}
+      SeedAdmin__DepartmentName: ${SEED_ADMIN_DEPARTMENT:-Admin}
+      SeedAdmin__PositionName: ${SEED_ADMIN_POSITION:-Admin}
 
 volumes:
   komsync_pg: {}

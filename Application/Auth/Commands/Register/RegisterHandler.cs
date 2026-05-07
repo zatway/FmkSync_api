@@ -1,4 +1,5 @@
 using Application.Common.Exceptions;
+using Application.Common;
 using Application.Interfaces;
 using Application.DTO.Auth;
 using AutoMapper;
@@ -27,6 +28,10 @@ public class RegisterHandler(
 
         if (!await context.Positions.AnyAsync(u => u.Id == positionId, cancellationToken))
             throw new BadRequestException("Должность не существует");
+        if (await SystemAdminProtection.IsProtectedDepartmentIdAsync(context, departmentId, cancellationToken))
+            throw new ForbiddenException("Регистрация в системное подразделение запрещена.");
+        if (await SystemAdminProtection.IsProtectedPositionIdAsync(context, positionId, cancellationToken))
+            throw new ForbiddenException("Регистрация на системную должность запрещена.");
 
         var user = mapper.Map<User>(request);
         user.PasswordHash = passwordHasher.Hash(request.Password);

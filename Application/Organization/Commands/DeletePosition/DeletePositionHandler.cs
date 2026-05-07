@@ -1,4 +1,5 @@
 using Application.Admin.Commands.DeleteUserAdmin;
+using Application.Common;
 using Application.Common.Exceptions;
 using Application.Interfaces;
 using MediatR;
@@ -15,6 +16,8 @@ public class DeletePositionHandler(IKomSyncContext context, ICurrentUserService 
 
         var pos = await context.Positions.FirstOrDefaultAsync(p => p.Id == request.PositionId, cancellationToken);
         if (pos == null) return false;
+        if (SystemAdminProtection.IsProtectedPosition(pos))
+            throw new BadRequestException("Системную должность нельзя удалить.");
 
         var userIds = await context.Users
             .Where(u => u.PositionId == pos.Id)
@@ -30,6 +33,10 @@ public class DeletePositionHandler(IKomSyncContext context, ICurrentUserService 
             }
             else if (request.ReassignToPositionId.HasValue)
             {
+                if (await SystemAdminProtection.IsProtectedPositionIdAsync(
+                        context, request.ReassignToPositionId.Value, cancellationToken))
+                    throw new BadRequestException("Нельзя переносить сотрудников на системную должность.");
+
                 if (request.ReassignToPositionId == pos.Id)
                     throw new BadRequestException("Выберите другую должность для переноса сотрудников.");
 

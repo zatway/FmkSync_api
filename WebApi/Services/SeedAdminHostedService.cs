@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Application.Common;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,11 @@ namespace WebApi.Services;
 public record SeedAdminSettings
 {
     public bool Enabled { get; init; } = true;
-    public string Email { get; init; } = "admin@komsync.local";
+    public string Email { get; init; } = SystemAdminProtection.SystemAdminEmail;
     public string Password { get; init; } = "Admin123!";
     public string FullName { get; init; } = "System Admin";
-    public string DepartmentName { get; init; } = "IT";
-    public string PositionName { get; init; } = "Administrator";
+    public string DepartmentName { get; init; } = SystemAdminProtection.ProtectedDepartmentName;
+    public string PositionName { get; init; } = SystemAdminProtection.ProtectedPositionName;
 }
 
 public class SeedAdminHostedService(
@@ -32,21 +33,33 @@ public class SeedAdminHostedService(
         var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
         var normalized = _settings.Email.Trim().ToUpperInvariant();
-        var existing = await context.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalized, cancellationToken);
-        if (existing != null) return;
-
-        var dep = await context.Departments.FirstOrDefaultAsync(d => d.Name == _settings.DepartmentName, cancellationToken);
+        var dep = await context.Departments.FirstOrDefaultAsync(
+            d => d.Name.ToLower() == _settings.DepartmentName.Trim().ToLower(),
+            cancellationToken);
         if (dep == null)
         {
             dep = new Department { Name = _settings.DepartmentName };
             (context as DbContext)!.Add(dep);
         }
 
-        var pos = await context.Positions.FirstOrDefaultAsync(p => p.Name == _settings.PositionName, cancellationToken);
+        var pos = await context.Positions.FirstOrDefaultAsync(
+            p => p.DepartmentId == dep.Id && p.Name.ToLower() == _settings.PositionName.Trim().ToLower(),
+            cancellationToken);
         if (pos == null)
         {
             pos = new Position { Name = _settings.PositionName, DepartmentId = dep.Id };
             (context as DbContext)!.Add(pos);
+        }
+
+        var existing = await context.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalized, cancellationToken);
+        if (existing != null)
+        {
+            existing.Role = UserRole.Admin;
+            existing.IsApproved = true;
+            existing.DepartmentId = dep.Id;
+            existing.PositionId = pos.Id;
+            await context.SaveChangesAsync(cancellationToken);
+            return;
         }
 
         var user = new User

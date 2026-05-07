@@ -1,4 +1,5 @@
 using Application.Admin.Commands.DeleteUserAdmin;
+using Application.Common;
 using Application.Common.Exceptions;
 using Application.Interfaces;
 using MediatR;
@@ -15,6 +16,8 @@ public class DeleteDepartmentHandler(IKomSyncContext context, ICurrentUserServic
 
         var dep = await context.Departments.FirstOrDefaultAsync(d => d.Id == request.DepartmentId, cancellationToken);
         if (dep == null) return false;
+        if (SystemAdminProtection.IsProtectedDepartment(dep))
+            throw new BadRequestException("Системное подразделение нельзя удалить.");
 
         var userIds = await context.Users
             .Where(u => u.DepartmentId == dep.Id)
@@ -30,6 +33,13 @@ public class DeleteDepartmentHandler(IKomSyncContext context, ICurrentUserServic
             }
             else if (request.ReassignToDepartmentId.HasValue && request.PositionIdForReassignedUsers.HasValue)
             {
+                if (await SystemAdminProtection.IsProtectedDepartmentIdAsync(
+                        context, request.ReassignToDepartmentId.Value, cancellationToken))
+                    throw new BadRequestException("Нельзя переносить сотрудников в системное подразделение.");
+                if (await SystemAdminProtection.IsProtectedPositionIdAsync(
+                        context, request.PositionIdForReassignedUsers.Value, cancellationToken))
+                    throw new BadRequestException("Нельзя переносить сотрудников на системную должность.");
+
                 if (request.ReassignToDepartmentId == dep.Id)
                     throw new BadRequestException("Выберите другое подразделение для переноса сотрудников.");
 

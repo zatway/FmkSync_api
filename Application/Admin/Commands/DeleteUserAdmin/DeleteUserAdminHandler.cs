@@ -1,4 +1,5 @@
 using Application.Common.Exceptions;
+using Application.Common;
 using Application.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ public class DeleteUserAdminHandler(IKomSyncContext context, ICurrentUserService
 
         if (user == null) return false;
 
-        if (string.Equals(user.Email, "admin@komsync.local", StringComparison.OrdinalIgnoreCase))
+        if (SystemAdminProtection.IsSystemAdminEmail(user.Email))
             throw new BadRequestException("Нельзя удалить системного администратора.");
 
         var snapshotName = user.FullName.Trim();

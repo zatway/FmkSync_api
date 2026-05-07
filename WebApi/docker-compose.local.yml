@@ -59,8 +59,8 @@ services:
       SeedAdmin__Email: ${SEED_ADMIN_EMAIL:-admin@komsync.local}
       SeedAdmin__Password: ${SEED_ADMIN_PASSWORD:-Admin123!}
       SeedAdmin__FullName: ${SEED_ADMIN_FULLNAME:-System Admin}
-      SeedAdmin__DepartmentName: ${SEED_ADMIN_DEPARTMENT:-IT}
-      SeedAdmin__PositionName: ${SEED_ADMIN_POSITION:-Administrator}
+      SeedAdmin__DepartmentName: ${SEED_ADMIN_DEPARTMENT:-Admin}
+      SeedAdmin__PositionName: ${SEED_ADMIN_POSITION:-Admin}
     ports:
       - "${BACKEND_PORT:-5237}:8080"
 

@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Application.Common;
 using Application.Organization.Commands.DeleteDepartment;
 using Domain.Entities;
 using MediatR;
@@ -33,6 +34,8 @@ public class DepartmentsController(IKomSyncContext context, IMediator mediator) 
     {
         if (string.IsNullOrWhiteSpace(body.Name))
             return BadRequest("Укажите название");
+        if (SystemAdminProtection.IsProtectedDepartmentName(body.Name))
+            return BadRequest("Системное подразделение недоступно для создания/изменения.");
 
         var entity = new Department { Name = body.Name.Trim() };
         context.Departments.Add(entity);
