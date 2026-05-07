@@ -23,4 +23,6 @@ RUN dotnet publish "./WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+# Базовый образ задаёт ASPNETCORE_HTTP_PORTS=8080. Compose при деплое/локалке переопределяет порт;
+# без override в compose приложение слушает 8080.
 ENTRYPOINT ["dotnet", "WebApi.dll"]

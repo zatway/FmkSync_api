@@ -28,7 +28,10 @@ public class KnowledgeArticle : BaseEntity
     [ForeignKey(nameof(ProjectId))]
     public Project? Project { get; set; }
 
-    /// <summary>Привязка к конкретной задаче (документация по задаче).</summary>
+    /// <summary>
+    /// Legacy: task link is deprecated, knowledge articles are project-scoped only.
+    /// Left for backward compatibility with existing data.
+    /// </summary>
     public Guid? ProjectTaskId { get; set; }
 
     [ForeignKey(nameof(ProjectTaskId))]

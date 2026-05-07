@@ -36,15 +36,6 @@ public record KnowledgeArticleDetailDto(
 
 public static class KnowledgeArticleDtoFactory
 {
-    public static string? ComputeTaskDisplayKey(KnowledgeArticle a)
-    {
-        if (a.LinkedTask != null && a.Project != null)
-            return $"{a.Project.Key}-{a.LinkedTask.TaskNumber}";
-        if (a.LinkedTask?.Project != null)
-            return $"{a.LinkedTask.Project.Key}-{a.LinkedTask.TaskNumber}";
-        return null;
-    }
-
     public static KnowledgeArticleDetailDto ToDetailDto(KnowledgeArticle a)
     {
         return new KnowledgeArticleDetailDto(
@@ -61,8 +52,8 @@ public static class KnowledgeArticleDtoFactory
             a.ProjectId,
             a.Project?.Key,
             a.Project?.Name,
-            a.ProjectTaskId,
-            ComputeTaskDisplayKey(a),
-            a.LinkedTask?.Title);
+            null,
+            null,
+            null);
     }
 }

@@ -20,8 +20,6 @@ public class GetKnowledgeArticleBySlugHandler(IKomSyncContext context, ICurrentU
             .AsNoTracking()
             .Include(x => x.Author)
             .Include(x => x.Project)
-            .Include(x => x.LinkedTask)
-            .ThenInclude(t => t!.Project)
             .FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
 
         if (a == null) return null;

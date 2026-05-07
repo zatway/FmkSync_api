@@ -9,6 +9,5 @@ public record CreateKnowledgeArticleCommand(
     string ContentMarkdown,
     Guid? ParentId,
     int? SortOrder,
-    Guid? ProjectId,
-    Guid? ProjectTaskId
+    Guid? ProjectId
 ) : IRequest<KnowledgeArticleDetailDto>;

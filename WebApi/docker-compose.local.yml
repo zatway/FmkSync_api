@@ -32,7 +32,8 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ASPNETCORE_URLS: "http://+:8080"
       Cors__IncludeBackendOrigin: ${CORS_INCLUDE_BACKEND_ORIGIN:-true}
       Cors__AllowedOriginsCsv: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:4200,http://localhost}
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-komSync};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}

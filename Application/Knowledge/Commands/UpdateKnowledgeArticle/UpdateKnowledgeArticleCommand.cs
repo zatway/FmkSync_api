@@ -11,7 +11,6 @@ public record UpdateKnowledgeArticleCommand(
     Guid? ParentId,
     int? SortOrder,
     Guid? ProjectId,
-    Guid? ProjectTaskId,
     bool ScopeChanged = false,
     bool ParentChanged = false
 ) : IRequest<KnowledgeArticleDetailDto?>;

@@ -18,10 +18,9 @@ public class KnowledgeController(IMediator mediator) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<KnowledgeArticleListItemDto>>> List(
         [FromQuery] Guid? projectId,
-        [FromQuery] Guid? taskId,
         CancellationToken cancellationToken)
     {
-        return Ok(await mediator.Send(new GetKnowledgeArticlesQuery(projectId, taskId), cancellationToken));
+        return Ok(await mediator.Send(new GetKnowledgeArticlesQuery(projectId), cancellationToken));
     }
 
     [HttpGet("{slug}")]
