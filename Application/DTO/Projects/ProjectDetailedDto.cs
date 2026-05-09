@@ -17,7 +17,7 @@ public record ProjectDetailedDto(
     IEnumerable<MemberDto> Members,
     TaskStatsDto TaskStats,
     decimal Progress,
-    IEnumerable<string>? Tags,
+    IReadOnlyList<ProjectTagDto> Tags,
     string? Category,
     string? Department,
     Guid DepartmentId,

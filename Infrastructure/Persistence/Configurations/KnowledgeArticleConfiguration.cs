@@ -21,14 +21,8 @@ public class KnowledgeArticleConfiguration : IEntityTypeConfiguration<KnowledgeA
         builder.HasOne(x => x.Project)
             .WithMany(x => x.KnowledgeArticles)
             .HasForeignKey(x => x.ProjectId)
-            .OnDelete(DeleteBehavior.SetNull);
-
-        builder.HasOne(x => x.LinkedTask)
-            .WithMany(x => x.KnowledgeArticles)
-            .HasForeignKey(x => x.ProjectTaskId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(x => x.ProjectId);
-        builder.HasIndex(x => x.ProjectTaskId);
     }
 }

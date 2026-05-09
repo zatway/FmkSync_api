@@ -35,7 +35,6 @@ public class GetKnowledgeArticlesHandler(IKomSyncContext context, ICurrentUserSe
         else if (!ProjectAccessRules.CanViewAllProjects(role))
         {
             var accessibleIds = context.Projects
-                .Where(p => !p.IsArchived)
                 .WhereUserCanSeeProject(role, uid, currentUser.DepartmentId)
                 .Select(p => p.Id);
 
@@ -65,8 +64,6 @@ public class GetKnowledgeArticlesHandler(IKomSyncContext context, ICurrentUserSe
             a.UpdatedAt,
             a.ProjectId,
             a.Project?.Key,
-            a.Project?.Name,
-            null,
-            null);
+            a.Project?.Name);
     }
 }

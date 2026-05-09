@@ -24,6 +24,12 @@ namespace Application.Projects.Commands.CreateProject
             await context.Projects.AddAsync(project, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
 
+            if (request.Tags is { Count: > 0 })
+            {
+                ProjectTagsSync.SyncFromNames(project, request.Tags.ToList(), context);
+                await context.SaveChangesAsync(cancellationToken);
+            }
+
             return project.Id;
         }
     }

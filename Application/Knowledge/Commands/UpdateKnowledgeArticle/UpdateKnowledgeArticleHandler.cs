@@ -138,10 +138,7 @@ public class UpdateKnowledgeArticleHandler(
 
 
         if (request.ScopeChanged)
-        {
             article.ProjectId = newPid;
-            article.ProjectTaskId = null;
-        }
 
 
 

@@ -1,5 +1,6 @@
 using Application.DTO.TaskComment;
 using Application.DTO.TaskHistory;
+using Application.DTO.Projects;
 using Application.DTO.Tasks;
 using Application.DTO.Attachments;
 using Application.Common;
@@ -64,6 +65,9 @@ public class TaskMappingProfile : AutoMapper.Profile
         CreateMap<User, TaskAssigneeDto>()
             .ConstructUsing(u => new TaskAssigneeDto(u.Id, u.FullName, null, u.Avatar != null));
 
+        CreateMap<Tag, ProjectTagDto>()
+            .ConstructUsing(t => new ProjectTagDto(t.Id, t.Name));
+
         CreateMap<ProjectTaskStatusColumn, TaskStatusColumnDto>();
 
         CreateMap<ProjectTask, TaskShortDto>()
@@ -71,7 +75,8 @@ public class TaskMappingProfile : AutoMapper.Profile
                 s.Project != null ? $"{s.Project.Key}-{s.TaskNumber}" : s.TaskNumber.ToString()))
             .ForMember(d => d.Assignee, opt => opt.MapFrom(s => s.Assignee))
             .ForMember(d => d.Responsible, opt => opt.MapFrom(s => s.Responsible))
-            .ForMember(d => d.Status, opt => opt.MapFrom(s => s.StatusColumn));
+            .ForMember(d => d.Status, opt => opt.MapFrom(s => s.StatusColumn))
+            .ForMember(d => d.Tags, opt => opt.MapFrom(s => s.Tags.OrderBy(x => x.Name)));
 
         CreateMap<ProjectTask, TaskDetailedDto>()
             .ForMember(d => d.Key, opt => opt.Ignore())
@@ -79,6 +84,7 @@ public class TaskMappingProfile : AutoMapper.Profile
             .ForMember(d => d.History, opt => opt.Ignore())
             .ForMember(d => d.Watchers, opt => opt.Ignore())
             .ForMember(d => d.FileAttachments, opt => opt.Ignore())
+            .ForMember(d => d.Tags, opt => opt.MapFrom(s => s.Tags.OrderBy(x => x.Name)))
             .ForMember(d => d.Status, opt => opt.MapFrom(s => s.StatusColumn))
             .ForMember(d => d.Creator, opt => opt.MapFrom(s => s.Creator));
     }

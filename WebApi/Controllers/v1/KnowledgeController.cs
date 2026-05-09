@@ -25,13 +25,6 @@ public class KnowledgeController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(new GetKnowledgeArticlesQuery(projectId), cancellationToken));
     }
 
-    [HttpGet("{slug}")]
-    public async Task<ActionResult<KnowledgeArticleDetailDto>> BySlug(string slug, CancellationToken cancellationToken)
-    {
-        var article = await mediator.Send(new GetKnowledgeArticleBySlugQuery(slug), cancellationToken);
-        return article == null ? NotFound() : Ok(article);
-    }
-
     [HttpPost]
     public async Task<ActionResult<KnowledgeArticleDetailDto>> Create(
         [FromBody] CreateKnowledgeArticleCommand command,
@@ -66,5 +59,12 @@ public class KnowledgeController(IMediator mediator) : ControllerBase
     {
         var ok = await mediator.Send(new DeleteKnowledgeArticleCommand(id), cancellationToken);
         return ok ? NoContent() : NotFound();
+    }
+
+    [HttpGet("{slug}")]
+    public async Task<ActionResult<KnowledgeArticleDetailDto>> BySlug(string slug, CancellationToken cancellationToken)
+    {
+        var article = await mediator.Send(new GetKnowledgeArticleBySlugQuery(slug), cancellationToken);
+        return article == null ? NotFound() : Ok(article);
     }
 }

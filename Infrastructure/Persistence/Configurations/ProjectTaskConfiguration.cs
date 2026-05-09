@@ -1,6 +1,7 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Collections.Generic;
 
 namespace Infrastructure.Persistence.Configurations;
 
@@ -32,5 +33,17 @@ public class ProjectTaskConfiguration : IEntityTypeConfiguration<ProjectTask>
             .WithMany(c => c.Tasks)
             .HasForeignKey(t => t.ProjectTaskStatusColumnId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(t => t.Tags)
+            .WithMany(tag => tag.Tasks)
+            .UsingEntity<Dictionary<string, object>>(
+                "ProjectTaskTags",
+                r => r.HasOne<Tag>().WithMany().HasForeignKey("TagId").OnDelete(DeleteBehavior.Cascade),
+                l => l.HasOne<ProjectTask>().WithMany().HasForeignKey("ProjectTaskId").OnDelete(DeleteBehavior.Cascade),
+                je =>
+                {
+                    je.ToTable("ProjectTaskTags");
+                    je.HasKey("ProjectTaskId", "TagId");
+                });
     }
 }

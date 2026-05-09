@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Interfaces;
 using Application.Organization.Dtos;
 using MediatR;
@@ -16,11 +17,12 @@ public class GetDepartmentUsersHandler(IKomSyncContext context)
         if (!exists)
             return Array.Empty<OrgMemberDto>();
 
-        return await context.Users
+        var list = await context.Users
             .AsNoTracking()
             .Where(u => u.DepartmentId == request.DepartmentId)
             .OrderBy(u => u.FullName)
             .Select(u => new OrgMemberDto(u.Id, u.FullName, u.Email))
             .ToListAsync(cancellationToken);
+        return list.Where(u => !SystemUserDisplayName.IsSeededSystemAdmin(u.FullName)).ToList();
     }
 }

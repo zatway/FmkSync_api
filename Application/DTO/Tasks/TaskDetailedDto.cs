@@ -1,4 +1,5 @@
 using Application.DTO.Attachments;
+using Application.DTO.Projects;
 using Application.DTO.TaskComment;
 using Application.DTO.TaskHistory;
 using Domain.Enums;
@@ -28,4 +29,5 @@ public class TaskDetailedDto
     public TaskCommentDto[] Comments { get; set; } = [];
     public TaskHistoryDto[] History { get; set; } = [];
     public IReadOnlyList<FileAttachmentDto> FileAttachments { get; set; } = Array.Empty<FileAttachmentDto>();
+    public IReadOnlyList<ProjectTagDto> Tags { get; set; } = Array.Empty<ProjectTagDto>();
 }

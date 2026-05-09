@@ -35,7 +35,7 @@ public class GetProjectsHandler(IKomSyncContext context, ICurrentUserService cur
             p.OwnerId,
             p.Owner.FullName,
             p.Owner != null && p.Owner.Avatar != null,
-            p.Members.Count,
+            p.Members.Count(m => !SystemUserDisplayName.IsSeededSystemAdmin(m.FullName)),
             p.Tasks.Count,
             p.Tasks.Count(t => t.StatusColumn != null && !TaskStatusColumnRules.IsDoneLike(t.StatusColumn)),
             p.Tasks.Count(t => t.StatusColumn != null && TaskStatusColumnRules.IsDoneLike(t.StatusColumn)),

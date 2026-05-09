@@ -12,5 +12,6 @@ public record CreateTaskRequest(
     Guid? AssigneeId,
     Guid? ResponsibleId,
     DateTime? Deadline,
-    IReadOnlyList<Guid>? WatcherUserIds
+    IReadOnlyList<Guid>? WatcherUserIds,
+    IReadOnlyList<Guid>? TagIds
 ) : IRequest<Guid>;

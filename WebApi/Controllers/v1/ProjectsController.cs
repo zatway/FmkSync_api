@@ -1,5 +1,8 @@
 using Application.DTO.Projects;
+using Application.DTO.Projects;
+using Application.Projects.Commands.CreateProjectTag;
 using Application.Projects.Commands.CreateProjectTaskStatusColumn;
+using Application.Projects.Commands.DeleteProjectTag;
 using Application.Projects.Commands.DeleteProjectTaskStatusColumn;
 using Application.Projects.Commands.ReorderProjectTaskStatusColumns;
 using Application.Projects.Commands.UpdateProjectTaskStatusColumn;
@@ -170,6 +173,22 @@ namespace WebApi.Controllers.v1
         {
             var result = await _mediator.Send(new UploadProjectAttachmentCommand(id, files));
             return Ok(result);
+        }
+
+        [HttpPost("{id:guid}/tags")]
+        public async Task<ActionResult<ProjectTagDto>> CreateProjectTag(Guid id, [FromBody] CreateProjectTagBody body)
+        {
+            var tag = await _mediator.Send(new CreateProjectTagCommand(id, body.Name));
+            return Ok(tag);
+        }
+
+        public record CreateProjectTagBody(string Name);
+
+        [HttpDelete("{id:guid}/tags/{tagId:guid}")]
+        public async Task<IActionResult> DeleteProjectTag(Guid id, Guid tagId)
+        {
+            var ok = await _mediator.Send(new DeleteProjectTagCommand(id, tagId));
+            return ok ? NoContent() : NotFound();
         }
 
     }

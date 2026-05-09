@@ -23,12 +23,14 @@ namespace Application.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(_ => Guid.NewGuid()))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.Icon, opt => opt.MapFrom(src => src.Icon ?? ""))
-                .ForMember(dest => dest.Color, opt => opt.MapFrom(src => NormalizeHexColorWithHash(src.Color)));
+                .ForMember(dest => dest.Color, opt => opt.MapFrom(src => NormalizeHexColorWithHash(src.Color)))
+                .ForMember(dest => dest.Tags, opt => opt.Ignore());
 
             CreateMap<UpdateProjectRequest, Project>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Icon, opt => opt.MapFrom(src => src.Icon ?? ""))
                 .ForMember(dest => dest.Color, opt => opt.MapFrom(src => src.Color == null ? null : NormalizeHexColorWithHash(src.Color)))
+                .ForMember(dest => dest.Tags, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Project, ProjectBriefDto>()
@@ -47,14 +49,18 @@ namespace Application.Mapping
                 .ConstructUsing(u => new AuthorDto(u.Id, u.FullName, u.Email, u.Avatar != null));
 
             CreateMap<ProjectHistory, ProjectHistoryEntryDto>()
-                .ForMember(d => d.ChangedAt, opt => opt.MapFrom(s => s.CreatedAt))
-                .ForMember(d => d.ChangedBy, opt => opt.MapFrom(s =>
+                .ConstructUsing(s => new ProjectHistoryEntryDto(
+                    s.Id,
+                    s.Field,
+                    s.OldValue,
+                    s.NewValue,
                     s.ChangedBy != null
                         ? new ChangedByDto(s.ChangedBy.Id, s.ChangedBy.FullName, s.ChangedBy.Avatar != null)
                         : new ChangedByDto(
                             Guid.Empty,
                             string.IsNullOrWhiteSpace(s.ChangedByDisplayName) ? "—" : s.ChangedByDisplayName!,
-                            false)));
+                            false),
+                    s.CreatedAt));
 
             CreateMap<User, ChangedByDto>()
                 .ConstructUsing(u => new ChangedByDto(u.Id, u.FullName, u.Avatar != null));

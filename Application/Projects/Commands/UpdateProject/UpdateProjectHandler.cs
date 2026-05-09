@@ -17,6 +17,7 @@ namespace Application.Projects.Commands.UpdateProject
             var uid = currentUser.UserId ?? throw new UnauthorizedAccessException();
             var project = await context.Projects
                 .Include(p => p.Members)
+                .Include(p => p.Tags)
                 .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
             if (project == null)
@@ -29,6 +30,7 @@ namespace Application.Projects.Commands.UpdateProject
 
             mapper.Map(request, project);
             project.UpdateTimestamp();
+            ProjectTagsSync.SyncFromNames(project, request.Tags, context);
 
             await context.SaveChangesAsync(cancellationToken);
             return true;

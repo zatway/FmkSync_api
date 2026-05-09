@@ -30,6 +30,7 @@ public class GetTaskByIdHandler(IKomSyncContext context, IMapper mapper, ICurren
             .Include(t => t.Comments).ThenInclude(c => c.Attachments)
             .Include(t => t.History).ThenInclude(h => h.ChangedBy)
             .Include(t => t.Watchers).ThenInclude(w => w.User)
+            .Include(t => t.Tags)
             .FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
 
         if (task == null)

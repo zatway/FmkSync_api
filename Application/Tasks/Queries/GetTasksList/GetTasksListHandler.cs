@@ -31,6 +31,7 @@ public class GetTasksListHandler(IKomSyncContext context, IMapper mapper, ICurre
             .Include(t => t.StatusColumn)
             .Include(t => t.Assignee)
             .Include(t => t.Responsible)
+            .Include(t => t.Tags)
             .OrderBy(t => t.StatusColumn.SortOrder)
             .ThenBy(t => t.SortOrder)
             .ThenBy(t => t.TaskNumber)

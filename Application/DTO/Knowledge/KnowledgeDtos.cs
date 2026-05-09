@@ -13,10 +13,7 @@ public record KnowledgeArticleListItemDto(
     DateTimeOffset? UpdatedAt,
     Guid? ProjectId,
     string? ProjectKey,
-    string? ProjectName,
-    Guid? ProjectTaskId,
-    /// <summary>Краткий ключ задачи, напр. CRM-12.</summary>
-    string? TaskDisplayKey);
+    string? ProjectName);
 
 public record KnowledgeArticleDetailDto(
     Guid Id,
@@ -32,9 +29,6 @@ public record KnowledgeArticleDetailDto(
     Guid? ProjectId,
     string? ProjectKey,
     string? ProjectName,
-    Guid? ProjectTaskId,
-    string? TaskDisplayKey,
-    string? TaskTitle,
     IReadOnlyList<CommentAttachmentDto> Attachments);
 
 public static class KnowledgeArticleDtoFactory
@@ -65,9 +59,6 @@ public static class KnowledgeArticleDtoFactory
             a.ProjectId,
             a.Project?.Key,
             a.Project?.Name,
-            null,
-            null,
-            null,
             attachments);
     }
 }

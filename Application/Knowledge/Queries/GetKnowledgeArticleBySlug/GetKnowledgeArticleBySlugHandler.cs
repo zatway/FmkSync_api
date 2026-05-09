@@ -23,6 +23,16 @@ public class GetKnowledgeArticleBySlugHandler(IKomSyncContext context, ICurrentU
             .Include(x => x.Attachments)
             .FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
 
+        if (a == null && Guid.TryParse(slug, out var articleId))
+        {
+            a = await context.KnowledgeArticles
+                .AsNoTracking()
+                .Include(x => x.Author)
+                .Include(x => x.Project)
+                .Include(x => x.Attachments)
+                .FirstOrDefaultAsync(x => x.Id == articleId, cancellationToken);
+        }
+
         if (a == null) return null;
 
         await KnowledgeLinkValidation.EnsureArticleVisibleAsync(context, currentUser, a, cancellationToken);

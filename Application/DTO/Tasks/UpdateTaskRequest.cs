@@ -14,5 +14,6 @@ public record UpdateTaskRequest(
     Guid? ParentTaskId,
     Guid? ResponsibleId,
     int? SortOrder,
-    IReadOnlyList<Guid>? WatcherUserIds
+    IReadOnlyList<Guid>? WatcherUserIds,
+    IReadOnlyList<Guid>? TagIds
 ) : IRequest<bool>;

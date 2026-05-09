@@ -51,6 +51,18 @@ public class CreateTaskHandler(
 
         context.Tasks.Add(task);
 
+        if (request.TagIds is { Count: > 0 })
+        {
+            var wanted = request.TagIds.Distinct().ToList();
+            var tags = await context.Tags
+                .Where(t => wanted.Contains(t.Id) && t.ProjectId == request.ProjectId)
+                .ToListAsync(cancellationToken);
+            if (tags.Count != wanted.Count)
+                throw new BadRequestException("Указаны несуществующие теги или теги другого проекта");
+            foreach (var t in tags)
+                task.Tags.Add(t);
+        }
+
         foreach (var watcherId in request.WatcherUserIds ?? Array.Empty<Guid>())
         {
             context.ProjectTaskWatchers.Add(new ProjectTaskWatcher

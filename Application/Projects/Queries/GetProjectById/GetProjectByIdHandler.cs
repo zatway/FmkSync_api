@@ -49,6 +49,7 @@ public class GetProjectByIdHandler(IKomSyncContext context, ICurrentUserService 
         var teamMemberIds = new HashSet<Guid>();
         foreach (var m in project.Members)
         {
+            if (SystemUserDisplayName.IsSeededSystemAdmin(m.FullName)) continue;
             if (teamMemberIds.Add(m.Id))
                 teamMembers.Add(new MemberDto(m.Id, m.FullName, m.Email, m.Role, m.Avatar != null));
         }
@@ -56,6 +57,7 @@ public class GetProjectByIdHandler(IKomSyncContext context, ICurrentUserService 
         void addTaskParticipant(User? u)
         {
             if (u == null || u.Id == project.OwnerId) return;
+            if (SystemUserDisplayName.IsSeededSystemAdmin(u.FullName)) return;
             if (!teamMemberIds.Add(u.Id)) return;
             teamMembers.Add(new MemberDto(u.Id, u.FullName, u.Email, u.Role, u.Avatar != null));
         }
@@ -103,7 +105,7 @@ public class GetProjectByIdHandler(IKomSyncContext context, ICurrentUserService 
                 0
             ),
             progress,
-            project.Tags.Select(t => t.Name).ToList(),
+            project.Tags.OrderBy(t => t.Name).Select(t => new ProjectTagDto(t.Id, t.Name)).ToList(),
             project.Categories.FirstOrDefault()?.Name,
             project.Department?.Name,
             project.DepartmentId,

@@ -55,7 +55,6 @@ public class CreateKnowledgeArticleHandler(
             AuthorId = userId,
             SortOrder = request.SortOrder ?? 0,
             ProjectId = projectId,
-            ProjectTaskId = null
         };
 
         context.KnowledgeArticles.Add(entity);

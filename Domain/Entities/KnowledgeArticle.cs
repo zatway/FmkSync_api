@@ -28,15 +28,6 @@ public class KnowledgeArticle : BaseEntity
     [ForeignKey(nameof(ProjectId))]
     public Project? Project { get; set; }
 
-    /// <summary>
-    /// Legacy: task link is deprecated, knowledge articles are project-scoped only.
-    /// Left for backward compatibility with existing data.
-    /// </summary>
-    public Guid? ProjectTaskId { get; set; }
-
-    [ForeignKey(nameof(ProjectTaskId))]
-    public ProjectTask? LinkedTask { get; set; }
-
     public Guid AuthorId { get; set; }
 
     [ForeignKey(nameof(AuthorId))]

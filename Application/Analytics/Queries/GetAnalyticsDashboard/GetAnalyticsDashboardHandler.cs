@@ -55,6 +55,7 @@ public class GetAnalyticsDashboardHandler(IKomSyncContext context, ICurrentUserS
             .Where(t => t.AssigneeId != null && t.Assignee != null)
             .GroupBy(t => new { t.AssigneeId, t.Assignee!.FullName })
             .Select(g => new UserLoadDto(g.Key.AssigneeId!.Value, g.Key.FullName, g.Count()))
+            .Where(u => !SystemUserDisplayName.IsSeededSystemAdmin(u.FullName))
             .OrderByDescending(x => x.ActiveTaskCount)
             .Take(10)
             .ToList();

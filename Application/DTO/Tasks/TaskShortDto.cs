@@ -1,3 +1,4 @@
+using Application.DTO.Projects;
 using Domain.Enums;
 
 namespace Application.DTO.Tasks;
@@ -19,4 +20,5 @@ public record TaskShortDto
     public int SortOrder { get; init; }
     public TaskAssigneeDto? Assignee { get; init; }
     public TaskAssigneeDto? Responsible { get; init; }
+    public IReadOnlyList<ProjectTagDto> Tags { get; init; } = Array.Empty<ProjectTagDto>();
 }

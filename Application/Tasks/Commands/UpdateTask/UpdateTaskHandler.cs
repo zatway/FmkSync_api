@@ -22,6 +22,7 @@ public class UpdateTaskHandler(
             .Include(t => t.Project)
             .ThenInclude(p => p.Members)
             .Include(t => t.Watchers)
+            .Include(t => t.Tags)
             .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
         if (task == null)
@@ -53,6 +54,19 @@ public class UpdateTaskHandler(
                 task.Watchers.Add(link);
                 context.ProjectTaskWatchers.Add(link);
             }
+        }
+
+        if (request.TagIds != null)
+        {
+            var wanted = request.TagIds.Distinct().ToList();
+            var tags = await context.Tags
+                .Where(t => wanted.Contains(t.Id) && t.ProjectId == task.ProjectId)
+                .ToListAsync(cancellationToken);
+            if (tags.Count != wanted.Count)
+                throw new BadRequestException("Указаны несуществующие теги или теги другого проекта");
+            task.Tags.Clear();
+            foreach (var t in tags)
+                task.Tags.Add(t);
         }
 
         await context.SaveChangesAsync(cancellationToken);

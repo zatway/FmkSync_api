@@ -63,5 +63,6 @@ public class ProjectTask : IAuditable
     public ICollection<TaskHistory> History { get; set; } = new List<TaskHistory>();
     public ICollection<TaskAttachment> Attachments { get; set; } = new List<TaskAttachment>();
     public ICollection<DeadlineReminderLog> DeadlineReminderLogs { get; set; } = new List<DeadlineReminderLog>();
-    public ICollection<KnowledgeArticle> KnowledgeArticles { get; set; } = new List<KnowledgeArticle>();
+
+    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
 }
