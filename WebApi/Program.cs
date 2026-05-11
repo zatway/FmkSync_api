@@ -8,6 +8,7 @@ using Microsoft.OpenApi;
 using WebApi.Middleware;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -128,22 +129,9 @@ if (app.Environment.IsDevelopment())
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<KomSyncDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupMigration");
-
-    try
-    {
-        db.Database.Migrate();
-        logger.LogInformation("Database migrations applied successfully");
-    }
-    catch (Exception ex)
-    {
-        logger.LogWarning(ex,
-            "Failed to apply database migrations");
-    }
-    scope.Dispose();
 }
+
+await ApplyDatabaseMigrationsAsync(app.Services);
 
 app.UseCors("AllowFrontendDev");
 
@@ -185,6 +173,58 @@ static string[] GetCorsOrigins(IConfiguration configuration)
             "No CORS origins configured. Set Cors:AllowedOrigins or Cors:AllowedOriginsCsv.");
 
     return result.ToArray();
+}
+
+static async Task ApplyDatabaseMigrationsAsync(IServiceProvider services)
+{
+    const int maxAttempts = 10;
+    var delay = TimeSpan.FromSeconds(3);
+    var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("StartupMigration");
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+    {
+        try
+        {
+            logger.LogInformation(
+                "Applying database migrations. Attempt {Attempt} of {MaxAttempts}",
+                attempt,
+                maxAttempts);
+
+            using var scope = services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<KomSyncDbContext>();
+            var pendingMigrations = (await db.Database.GetPendingMigrationsAsync()).ToArray();
+
+            if (pendingMigrations.Length == 0)
+            {
+                logger.LogInformation("Database is already up to date. No migrations to apply");
+                return;
+            }
+
+            await db.Database.MigrateAsync();
+            logger.LogInformation(
+                "Database migrations applied successfully. Applied {MigrationCount} migration(s)",
+                pendingMigrations.Length);
+            return;
+        }
+        catch (Exception ex) when (attempt < maxAttempts)
+        {
+            logger.LogWarning(
+                ex,
+                "Failed to apply database migrations. Retrying in {DelaySeconds} seconds",
+                delay.TotalSeconds);
+
+            await Task.Delay(delay);
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical(
+                ex,
+                "Failed to apply database migrations after {MaxAttempts} attempts",
+                maxAttempts);
+
+            throw;
+        }
+    }
 }
 
 static void AddOrigin(ISet<string> set, string? origin)

@@ -1,26 +1,8 @@
 # Linux-сервер (деплой): backend в host-сети — SMTP и исходящие соединения как у хоста.
-# БД в контейнере с пробросом порта на localhost; строка подключения через 127.0.0.1.
+# PostgreSQL устанавливается на Ubuntu-хосте и доступен backend через 127.0.0.1.
 #
 # Локально в Docker (Windows/Mac или без host mode): см. docker-compose.local.yml
 services:
-  db:
-    image: postgres:16-alpine
-    container_name: komsync-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-komSync}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - komsync_pg:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-komSync}"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-
   backend:
     build:
       context: ..
@@ -28,9 +10,6 @@ services:
     container_name: komsync-backend
     restart: unless-stopped
     network_mode: host
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       # Образ aspnet задаёт HTTP_PORTS=8080; без явного override Kestrel остаётся на 8080 (как в ваших логах).
@@ -38,7 +17,7 @@ services:
       ASPNETCORE_URLS: "http://+:${BACKEND_PORT:-5237}"
       Cors__IncludeBackendOrigin: ${CORS_INCLUDE_BACKEND_ORIGIN:-true}
       Cors__AllowedOriginsCsv: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:4200,http://localhost}
-      ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-komSync};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      ConnectionStrings__DefaultConnection: Host=127.0.0.1;Port=${POSTGRES_PORT:-5432};Database=${POSTGRES_DB:-komSync};Username=${POSTGRES_USER:-komsync};Password=${POSTGRES_PASSWORD:-CHANGE_ME_POSTGRES_PASSWORD}
       JwtSettings__Secret: ${JWT_SECRET:-CHANGE_ME_SUPER_SECRET_32_PLUS_CHARS}
       PasswordReset__FrontendBaseUrl: ${PASSWORD_RESET_FRONTEND_BASE_URL:-http://localhost}
       PasswordReset__TokenLifetimeHours: ${PASSWORD_RESET_TOKEN_LIFETIME_HOURS:-24}
@@ -63,6 +42,3 @@ services:
       SeedAdmin__FullName: ${SEED_ADMIN_FULLNAME:-System Admin}
       SeedAdmin__DepartmentName: ${SEED_ADMIN_DEPARTMENT:-Admin}
       SeedAdmin__PositionName: ${SEED_ADMIN_POSITION:-Admin}
-
-volumes:
-  komsync_pg: {}
