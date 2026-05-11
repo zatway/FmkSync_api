@@ -21,7 +21,7 @@ public class LoginHandler(
             .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail, cancellationToken);
 
         if (user == null || !passwordHasher.Verify(request.Password, user.PasswordHash))
-            throw new UnauthorizedAccessException("Invalid email or password");
+            throw new UnauthorizedAccessException("Неверный логин или пароль");
 
         if (!user.IsApproved)
             throw new UnauthorizedAccessException("Регистрация ещё не подтверждена администратором");

@@ -145,12 +145,14 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         if (exception is DbUpdateException dbUpdateException)
         {
+            logger.LogWarning(dbUpdateException, "DbUpdateException: {Message}", dbUpdateException.Message);
             var details = new ProblemDetails
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "Ошибка сохранения данных",
                 Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                Detail = dbUpdateException.InnerException?.Message ?? dbUpdateException.Message
+                Detail =
+                    "Не удалось сохранить изменения. Проверьте введённые данные: возможно, нарушено ограничение уникальности или связи с другими записями."
             };
 
             httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;

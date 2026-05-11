@@ -33,6 +33,28 @@ public class LocalFileStorage(IWebHostEnvironment env) : IFileStorage
         return Task.FromResult<Stream?>(stream);
     }
 
+    public Task TryDeleteAsync(string storedPath, CancellationToken cancellationToken = default)
+    {
+        _ = cancellationToken;
+        var relative = storedPath.Replace('\\', '/');
+        if (relative.StartsWith("/")) relative = relative[1..];
+
+        var fullPath = Path.Combine(env.ContentRootPath, relative.Replace('/', Path.DirectorySeparatorChar));
+        if (File.Exists(fullPath))
+        {
+            try
+            {
+                File.Delete(fullPath);
+            }
+            catch
+            {
+                // логирование на уровне вызывающего кода при необходимости
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
     private static string SanitizeFileName(string fileName)
     {
         var name = Path.GetFileName(fileName);

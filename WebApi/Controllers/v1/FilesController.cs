@@ -1,5 +1,7 @@
 using Application.Common;
+using Application.Files.Commands.DeleteStoredAttachment;
 using Application.Interfaces;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +14,8 @@ namespace WebApi.Controllers.v1;
 public class FilesController(
     IKomSyncContext context,
     IFileStorage storage,
-    ICurrentUserService currentUser) : ControllerBase
+    ICurrentUserService currentUser,
+    IMediator mediator) : ControllerBase
 {
     [HttpGet("{fileId}")]
     public async Task<IActionResult> DownloadById(string fileId, CancellationToken cancellationToken)
@@ -33,6 +36,13 @@ public class FilesController(
             "av" => await DownloadUserAvatar(id, cancellationToken),
             _ => NotFound()
         };
+    }
+
+    [HttpDelete("{fileId}")]
+    public async Task<IActionResult> DeleteById(string fileId, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new DeleteStoredAttachmentCommand(fileId), cancellationToken);
+        return NoContent();
     }
 
     private async Task<IActionResult> DownloadTaskAttachment(Guid id, Guid uid, Domain.Enums.UserRole role, CancellationToken cancellationToken)
