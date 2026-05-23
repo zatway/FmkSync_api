@@ -1,7 +1,5 @@
-# Linux-сервер (деплой): backend в host-сети — SMTP и исходящие соединения как у хоста.
-# PostgreSQL устанавливается на Ubuntu-хосте и доступен backend через 127.0.0.1.
-#
-# Локально в Docker (Windows/Mac или без host mode): см. docker-compose.local.yml
+# Устаревший одиночный деплой API. Для komsync.ru используйте корневой docker-compose.yml.
+# Локально в Docker: docker-compose.local.yml
 services:
   backend:
     build:

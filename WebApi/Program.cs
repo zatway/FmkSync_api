@@ -8,6 +8,7 @@ using Microsoft.OpenApi;
 using WebApi.Middleware;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.RegularExpressions;
 
@@ -112,6 +113,13 @@ builder.Services.AddAuthentication(x =>
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -126,7 +134,9 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-if (!app.Environment.IsDevelopment())
+app.UseForwardedHeaders();
+
+if (app.Configuration.GetValue<bool>("App:UseHttpsRedirection"))
 {
     app.UseHttpsRedirection();
 }
