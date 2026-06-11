@@ -1,4 +1,4 @@
-﻿using Infrastructure.Persistence.Seed;
+using Infrastructure.Persistence.Seed;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
